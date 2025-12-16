@@ -210,7 +210,7 @@ async def sudo_stats_callback(_, query: types.CallbackQuery):
     total_storage = round(hdd.total / (1024.0**3))
     used_storage = round(hdd.used / (1024.0**3))
     
-    text = f"""⚙️ **System Information:**
+    text = f"""⚙️ **System Information**
 
 **Platform:** {sc}
 **RAM:** {ram}
@@ -219,7 +219,8 @@ async def sudo_stats_callback(_, query: types.CallbackQuery):
 **CPU Frequency:** {cpu_freq}
 
 **Storage Total:** {total_storage} GB
-**Storage Used:** {used_storage} GB"""
+**Storage Used:** {used_storage} GB
+**Storage Free:** {total_storage - used_storage} GB"""
     
     med = InputMediaPhoto(media=config.STATS_IMG_URL, caption=text)
     try:
