@@ -24,7 +24,7 @@ class Config:
         self.SESSION3 = getenv("SESSION3", None)
 
         self.SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/FallenAssociation")
-        self.DONATE_QR_IMAGE = getenv("DONATE_QR_IMAGE", "https://te.legra.ph/file/3e40a408286d4eda24191.jpg")
+        self.DONATE_QR_IMAGE = getenv("DONATE_QR_IMAGE", "https://files.catbox.moe/2d927j.jpg")
 
         self.AUTO_END: bool = getenv("AUTO_END", False)
         self.AUTO_LEAVE: bool = getenv("AUTO_LEAVE", False)
