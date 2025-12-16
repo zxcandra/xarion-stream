@@ -12,10 +12,11 @@ from anony.core.lang import Language
 lang_helper = Language()
 
 
+# Anti-PM for Assistant Accounts (Userbot)
 @userbot.one.on_message(filters.private & filters.incoming, group=-1)
 @userbot.two.on_message(filters.private & filters.incoming, group=-1)
 @userbot.three.on_message(filters.private & filters.incoming, group=-1)
-async def anti_pm_handler(client, message: Message):
+async def anti_pm_assistant(client, message: Message):
     """Handle anti-PM protection for assistant accounts."""
     
     # Skip if anti-PM is disabled
