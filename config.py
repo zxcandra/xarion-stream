@@ -28,6 +28,7 @@ class Config:
 
         self.AUTO_END: bool = getenv("AUTO_END", True)
         self.AUTO_LEAVE: bool = getenv("AUTO_LEAVE", False)
+        self.AUTO_DELETE_TIME: int = int(getenv("AUTO_DELETE_TIME", 15))
         self.VIDEO_PLAY: bool = getenv("VIDEO_PLAY", True)
         self.COOKIES_URL = [
             url for url in getenv("COOKIES_URL", "").split(" ")

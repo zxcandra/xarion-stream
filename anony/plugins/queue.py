@@ -6,14 +6,16 @@
 from pyrogram import filters, types
 
 from anony import app, config, db, lang, queue
-from anony.helpers import Track, buttons, thumb
+from anony.helpers import Track, buttons, thumb, utils
 
 
 @app.on_message(filters.command(["queue", "playing"]) & filters.group & ~app.bl_users)
 @lang.language()
 async def _queue_func(_, m: types.Message):
     if not await db.get_call(m.chat.id):
-        return await m.reply_text(m.lang["not_playing"])
+        error_msg = await m.reply_text(m.lang["not_playing"])
+        await utils.auto_delete(error_msg)
+        return
 
     _reply = await m.reply_text(m.lang["queue_fetching"])
     _queue = queue.get_queue(m.chat.id)
@@ -53,3 +55,4 @@ async def _queue_func(_, m: types.Message):
             _playing,
         ),
     )
+    await utils.auto_delete(_reply)

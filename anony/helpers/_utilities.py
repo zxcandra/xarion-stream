@@ -123,3 +123,24 @@ class Utilities:
                 m.from_user.mention,
             ),
         )
+
+    async def auto_delete(self, message: types.Message, delay: int = None) -> None:
+        """
+        Auto delete a message after a specified delay.
+        
+        Args:
+            message: The message to delete
+            delay: Delay in seconds (uses config.AUTO_DELETE_TIME if None)
+        """
+        from anony import config
+        import asyncio
+        
+        if delay is None:
+            delay = config.AUTO_DELETE_TIME
+        
+        if delay > 0:
+            await asyncio.sleep(delay)
+            try:
+                await message.delete()
+            except:
+                pass

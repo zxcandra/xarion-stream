@@ -49,7 +49,9 @@ async def play_hndlr(
             )
 
             if not tracks:
-                return await sent.edit_text(m.lang["playlist_error"])
+                await sent.edit_text(m.lang["playlist_error"])
+                await utils.auto_delete(sent)
+                return
 
             file = tracks[0]
             tracks.remove(file)
@@ -58,29 +60,37 @@ async def play_hndlr(
             file = await yt.search(url, sent.id, video=video)
 
         if not file:
-            return await sent.edit_text(
+            await sent.edit_text(
                 m.lang["play_not_found"].format(config.SUPPORT_CHAT)
             )
+            await utils.auto_delete(sent)
+            return
 
     elif len(m.command) >= 2:
         query = " ".join(m.command[1:])
         file = await yt.search(query, sent.id, video=video)
         if not file:
-            return await sent.edit_text(
+            await sent.edit_text(
                 m.lang["play_not_found"].format(config.SUPPORT_CHAT)
             )
+            await utils.auto_delete(sent)
+            return
 
     elif media:
         setattr(sent, "lang", m.lang)
         file = await tg.download(m.reply_to_message, sent)
 
     if not file:
-        return await sent.edit_text(m.lang["play_usage"])
+        await sent.edit_text(m.lang["play_usage"])
+        await utils.auto_delete(sent)
+        return
 
     if file.duration_sec > config.DURATION_LIMIT:
-        return await sent.edit_text(
+        await sent.edit_text(
             m.lang["play_duration_limit"].format(config.DURATION_LIMIT // 60)
         )
+        await utils.auto_delete(sent)
+        return
 
     if await db.is_logger():
         await utils.play_log(m, file.title, file.duration)
@@ -104,12 +114,14 @@ async def play_hndlr(
                     m.chat.id, file.id, m.lang["play_now"]
                 ),
             )
+            await utils.auto_delete(sent)
             if tracks:
                 added = playlist_to_queue(m.chat.id, tracks)
-                await app.send_message(
+                playlist_msg = await app.send_message(
                     chat_id=m.chat.id,
                     text=m.lang["playlist_queued"].format(len(tracks)) + added,
                 )
+                await utils.auto_delete(playlist_msg)
             return
 
     if not file.file_path:
@@ -124,7 +136,8 @@ async def play_hndlr(
     if not tracks:
         return
     added = playlist_to_queue(m.chat.id, tracks)
-    await app.send_message(
+    playlist_msg = await app.send_message(
         chat_id=m.chat.id,
         text=m.lang["playlist_queued"].format(len(tracks)) + added,
     )
+    await utils.auto_delete(playlist_msg)
