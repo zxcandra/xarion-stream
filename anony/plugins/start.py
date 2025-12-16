@@ -12,7 +12,8 @@ from anony.helpers import buttons, utils
 @app.on_message(filters.command(["help"]) & filters.private & ~app.bl_users)
 async def _help(_, m: types.Message):
     await m.reply_text(
-        text="ℹ️ **Menu Bantuan**\n\nPilih kategori di bawah untuk melihat perintah yang tersedia:",
+        text="<b>Klik tombol di bawah untuk mendapatkan informasi tentang perintah saya.</b>\n\n<i><b>Catatan:</b> Semua perintah dapat digunakan dengan /</i>",
+        parse_mode=enums.ParseMode.HTML,
         reply_markup=buttons.help_markup({}),
         quote=True,
     )
@@ -37,7 +38,7 @@ async def start(_, message: types.Message):
     await message.reply_photo(
         photo=config.START_IMG,
         caption=_text,
-        parse_mode=enums.ParseMode.MARKDOWN,
+        parse_mode=enums.ParseMode.HTML,
         reply_markup=key,
         quote=not private,
     )
@@ -62,6 +63,7 @@ async def settings(_, message: types.Message):
     
     await message.reply_text(
         text=f"<u><b>Pengaturan {message.chat.title}</b></u>\n\nKlik tombol di bawah untuk mengubah pengaturan chat ini.",
+        parse_mode=enums.ParseMode.HTML,
         reply_markup=buttons.settings_markup(
             {}, admin_only, cmd_delete, _language, message.chat.id
         ),
