@@ -76,11 +76,16 @@ async def pmpermit_handler(client, message: Message):
     
     # Check if user is already blocked - SILENTLY IGNORE
     if await db.is_pm_blocked(user_id):
-        # User already blocked, ensure Telegram block is applied
+        # Ensure they are hard blocked in Telegram
         try:
-            await client.block_user(user_id)
+            from pyrogram.raw import functions
+            await client.invoke(
+                functions.contacts.Block(
+                    id=await client.resolve_peer(user_id)
+                )
+            )
         except Exception as e:
-            pass
+            print(f"[AntiPM] Failed to re-block {user_id}: {e}")
         return
     
     # Increment warning count
@@ -98,21 +103,18 @@ async def pmpermit_handler(client, message: Message):
         except:
             pass
         
-        # Hard block the user via Telegram
+        # Hard block the user via Telegram (Raw API)
         try:
-            # Use Pyrogram's block_user method
-            await client.block_user(user_id)
-        except Exception as e:
-            # If block_user doesn't work, try alternative method
-            try:
-                from pyrogram.raw import functions
-                await client.invoke(
-                    functions.contacts.Block(
-                        id=await client.resolve_peer(user_id)
-                    )
+            from pyrogram.raw import functions
+            print(f"[AntiPM] Blocking user {user_id}...")
+            await client.invoke(
+                functions.contacts.Block(
+                    id=await client.resolve_peer(user_id)
                 )
-            except:
-                pass
+            )
+            print(f"[AntiPM] User {user_id} successfully blocked.")
+        except Exception as e:
+            print(f"[AntiPM] FAILED to block user {user_id}: {e}")
         return
     
     # Send warning
