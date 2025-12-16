@@ -18,6 +18,7 @@ lang_codes = {
     "es": "Spanish",
     "fr": "French",
     "hi": "Hindi",
+    "id": "Indonesian",
     "ja": "Japanese",
     "my": "Burmese",
     "pa": "Punjabi",
