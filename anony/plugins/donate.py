@@ -5,10 +5,11 @@
 
 from pyrogram import filters, types
 
-from anony import app, config
+from anony import app, config, lang
 
 
 @app.on_message(filters.command(["donate"]))
+@lang.language()
 async def donate_command(_, message: types.Message):
     """Show donate information with QR code link."""
     donate_text = message.lang["donate_text"]
