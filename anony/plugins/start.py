@@ -5,40 +5,39 @@
 import asyncio
 from pyrogram import enums, filters, types
 
-from anony import app, config, db, lang
+from anony import app, config, db
 from anony.helpers import buttons, utils
 
 
 @app.on_message(filters.command(["help"]) & filters.private & ~app.bl_users)
-@lang.language()
 async def _help(_, m: types.Message):
     await m.reply_text(
-        text=m.lang["help_menu"],
-        reply_markup=buttons.help_markup(m.lang),
+        text="ℹ️ **Menu Bantuan**\n\nPilih kategori di bawah untuk melihat perintah yang tersedia:",
+        reply_markup=buttons.help_markup({}),
         quote=True,
     )
 
 
 @app.on_message(filters.command(["start"]))
-@lang.language()
 async def start(_, message: types.Message):
     if message.from_user.id in app.bl_users and message.from_user.id not in db.notified:
-        return await message.reply_text(message.lang["bl_user_notify"])
+        return await message.reply_text("❌ Anda telah diblokir dari menggunakan bot ini.")
 
     if len(message.command) > 1 and message.command[1] == "help":
         return await _help(_, message)
 
     private = message.chat.type == enums.ChatType.PRIVATE
     _text = (
-        message.lang["start_pm"].format(message.from_user.first_name, app.name)
+        f"👋 **Halo {message.from_user.first_name}!**\n\n🎵 Selamat datang di **{app.name}**!\n\n> 🎶 Bot pemutar musik dengan fitur-fitur keren dan berguna untuk grup Telegram Anda!\n> 🎧 Streaming musik berkualitas tinggi\n> 📝 Playlist dan queue management\n> ⚡ Fast & Responsive\n\n<b><i>Klik tombol bantuan untuk info lebih lanjut.</i></b>"
         if private
-        else message.lang["start_gp"].format(app.name)
+        else f"👋 **Halo semuanya!**\n\n> 🎵 **{app.name}** sudah aktif dan siap memutar musik!\n> 🎶 Ketik /help untuk melihat semua perintah yang tersedia.\n\n**Fitur Utama:**\n• 🎧 Streaming musik berkualitas\n• 📝 Playlist & Queue\n• ⚡ Cepat & Stabil"
     )
 
-    key = buttons.start_key(message.lang, private)
+    key = buttons.start_key({}, private)
     await message.reply_photo(
         photo=config.START_IMG,
         caption=_text,
+        parse_mode=enums.ParseMode.MARKDOWN,
         reply_markup=key,
         quote=not private,
     )
@@ -56,22 +55,21 @@ async def start(_, message: types.Message):
 
 
 @app.on_message(filters.command(["playmode", "settings"]) & filters.group & ~app.bl_users)
-@lang.language()
 async def settings(_, message: types.Message):
     admin_only = await db.get_play_mode(message.chat.id)
     cmd_delete = await db.get_cmd_delete(message.chat.id)
     _language = await db.get_lang(message.chat.id)
+    
     await message.reply_text(
-        text=message.lang["start_settings"].format(message.chat.title),
+        text=f"<u><b>Pengaturan {message.chat.title}</b></u>\n\nKlik tombol di bawah untuk mengubah pengaturan chat ini.",
         reply_markup=buttons.settings_markup(
-            message.lang, admin_only, cmd_delete, _language, message.chat.id
+            {}, admin_only, cmd_delete, _language, message.chat.id
         ),
         quote=True,
     )
 
 
 @app.on_message(filters.new_chat_members, group=7)
-@lang.language()
 async def _new_member(_, message: types.Message):
     await asyncio.sleep(3)
     for member in message.new_chat_members:
