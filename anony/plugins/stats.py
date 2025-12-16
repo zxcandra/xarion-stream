@@ -8,7 +8,7 @@ import os
 import platform
 import psutil
 
-from pyrogram import filters, types
+from pyrogram import enums, filters, types
 from pyrogram.types import InputMediaPhoto
 
 from anony import app, config, db, lang, userbot
@@ -24,6 +24,7 @@ async def stats_command(_, m: types.Message):
     await m.reply_photo(
         photo=config.STATS_IMG_URL,
         caption=m.lang["gstats_11"].format(app.name),
+        parse_mode=enums.ParseMode.MARKDOWN,
         reply_markup=buttons.stats_buttons(m.lang, is_sudo),
     )
 
@@ -44,7 +45,8 @@ async def get_stats_callback(_, query: types.CallbackQuery):
     await query.edit_message_caption(
         query.lang["gstats_3"].format(
             f"Grup {query.message.chat.title}" if what == "Here" else what
-        )
+        ),
+        parse_mode=enums.ParseMode.MARKDOWN
     )
     
     # Fetch data based on type
@@ -63,6 +65,7 @@ async def get_stats_callback(_, query: types.CallbackQuery):
         await asyncio.sleep(1)
         return await query.edit_message_caption(
             query.lang["gstats_2"],
+            parse_mode=enums.ParseMode.MARKDOWN,
             reply_markup=buttons.back_stats_markup(query.lang)
         )
     
@@ -124,6 +127,7 @@ async def get_stats_callback(_, query: types.CallbackQuery):
         await query.message.reply_photo(
             photo=config.GLOBAL_IMG_URL,
             caption=msg,
+            parse_mode=enums.ParseMode.MARKDOWN,
             reply_markup=buttons.back_stats_markup(query.lang)
         )
 
@@ -137,7 +141,7 @@ async def overall_stats_callback(_, query: types.CallbackQuery):
     except:
         pass
     
-    await query.edit_message_caption(query.lang["gstats_8"])
+    await query.edit_message_caption(query.lang["gstats_8"], parse_mode=enums.ParseMode.MARKDOWN)
     
     served_chats = len(await db.get_chats())
     served_users = len(await db.get_users())
@@ -173,6 +177,7 @@ async def overall_stats_callback(_, query: types.CallbackQuery):
         await query.message.reply_photo(
             photo=config.STATS_IMG_URL,
             caption=text,
+            parse_mode=enums.ParseMode.MARKDOWN,
             reply_markup=buttons.overall_stats_markup(query.lang, main=True)
         )
 
@@ -189,7 +194,7 @@ async def sudo_stats_callback(_, query: types.CallbackQuery):
     except:
         pass
     
-    await query.edit_message_caption("Mengambil system info...")
+    await query.edit_message_caption("Mengambil system info...", parse_mode=enums.ParseMode.MARKDOWN)
     
     sc = platform.system()
     p_core = psutil.cpu_count(logical=False)
@@ -226,6 +231,7 @@ async def sudo_stats_callback(_, query: types.CallbackQuery):
         await query.message.reply_photo(
             photo=config.STATS_IMG_URL,
             caption=text,
+            parse_mode=enums.ParseMode.MARKDOWN,
             reply_markup=buttons.overall_stats_markup(query.lang)
         )
 
@@ -253,5 +259,6 @@ async def stats_back_callback(_, query: types.CallbackQuery):
         await query.message.reply_photo(
             photo=config.STATS_IMG_URL,
             caption=query.lang["gstats_11"].format(app.name),
+            parse_mode=enums.ParseMode.MARKDOWN,
             reply_markup=buttons.stats_buttons(query.lang, is_sudo)
         )

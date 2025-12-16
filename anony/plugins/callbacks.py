@@ -183,7 +183,7 @@ async def _donate_cb(_, query: types.CallbackQuery):
     
     await query.message.reply_text(
         text=donate_text,
-        parse_mode="Markdown",
+        parse_mode=enums.ParseMode.MARKDOWN,
         reply_markup=types.InlineKeyboardMarkup(
             [[types.InlineKeyboardButton(text="🎁 Dukung Kami", url=config.DONATE_QR_IMAGE)]]
         ),

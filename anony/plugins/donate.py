@@ -3,7 +3,7 @@
 # This file is part of AnonXMusic
 
 
-from pyrogram import filters, types
+from pyrogram import enums, filters, types
 
 from anony import app, config, lang
 
@@ -16,7 +16,7 @@ async def donate_command(_, message: types.Message):
     
     await message.reply_text(
         text=donate_text,
-        parse_mode="Markdown",
+        parse_mode=enums.ParseMode.MARKDOWN,
         reply_markup=types.InlineKeyboardMarkup(
             [[types.InlineKeyboardButton(text="🎁 Dukung Kami", url=config.DONATE_QR_IMAGE)]]
         ),
