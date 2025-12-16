@@ -43,6 +43,9 @@ class MongoDB:
         self.users = []
         self.usersdb = self.db.users
 
+        self.pm_warns = {}
+        self.pm_warnsdb = self.db.pm_warns
+
     async def connect(self) -> None:
         """Check if we can connect to the database.
 
@@ -293,6 +296,37 @@ class MongoDB:
         if not self.users:
             self.users.extend([user["_id"] async for user in self.usersdb.find()])
         return self.users
+
+    # PM WARNINGS METHODS
+    async def get_pm_warns(self, user_id: int) -> int:
+        """Get number of PM warnings for a user."""
+        if user_id not in self.pm_warns:
+            doc = await self.pm_warnsdb.find_one({"_id": user_id})
+            self.pm_warns[user_id] = doc.get("warns", 0) if doc else 0
+        return self.pm_warns[user_id]
+
+    async def add_pm_warn(self, user_id: int) -> int:
+        """Add a PM warning to a user and return new count."""
+        current = await self.get_pm_warns(user_id)
+        new_count = current + 1
+        self.pm_warns[user_id] = new_count
+        await self.pm_warnsdb.update_one(
+            {"_id": user_id},
+            {"$set": {"warns": new_count}},
+            upsert=True,
+        )
+        return new_count
+
+    async def clear_pm_warns(self, user_id: int) -> None:
+        """Clear PM warnings for a user."""
+        self.pm_warns.pop(user_id, None)
+        await self.pm_warnsdb.delete_one({"_id": user_id})
+
+    async def is_pm_blocked(self, user_id: int) -> bool:
+        """Check if user is blocked from PM."""
+        warns = await self.get_pm_warns(user_id)
+        from anony import config
+        return warns >= config.PM_WARN_COUNT
 
 
     async def migrate_coll(self) -> None:

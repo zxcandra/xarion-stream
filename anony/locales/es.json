@@ -149,5 +149,7 @@
     "help_5": "Reproducir",
     "help_6": "Cola",
     "help_7": "Estadísticas",
-    "help_8": "Sudoers"
+    "help_8": "Sudoers",
+    "pm_warn": "⚠️ Advertencia {0}/{1}\n\nEsta es una cuenta de asistente. Por favor, no envíes mensajes aquí.\n\nUsa nuestro bot en grupos en su lugar.",
+    "pm_blocked": "❌ Has sido bloqueado por enviar spam a esta cuenta de asistente."
 }

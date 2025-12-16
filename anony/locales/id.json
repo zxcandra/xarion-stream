@@ -149,5 +149,7 @@
     "help_5": "Play",
     "help_6": "Queue",
     "help_7": "Stats",
-    "help_8": "Sudoers"
+    "help_8": "Sudoers",
+    "pm_warn": "⚠️ Peringatan {0}/{1}\n\nIni adalah akun assistant. Jangan kirim pesan ke sini.\n\nGunakan bot kami di grup saja.",
+    "pm_blocked": "❌ Anda telah diblokir karena spam ke akun assistant ini."
 }

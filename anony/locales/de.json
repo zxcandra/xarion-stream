@@ -149,5 +149,7 @@
     "help_5": "Wiedergabe",
     "help_6": "Warteschlange",
     "help_7": "Statistiken",
-    "help_8": "Sudoers"
+    "help_8": "Sudoers",
+    "pm_warn": "⚠️ Warnung {0}/{1}\n\nDies ist ein Assistenten-Konto. Bitte sende hier keine Nachrichten.\n\nVerwende stattdessen unseren Bot in Gruppen.",
+    "pm_blocked": "❌ Du wurdest blockiert, weil du dieses Assistenten-Konto zugespammt hast."
 }

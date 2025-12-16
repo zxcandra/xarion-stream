@@ -149,5 +149,7 @@
     "help_5": "Play",
     "help_6": "Queue",
     "help_7": "Stats",
-    "help_8": "Sudoers"
+    "help_8": "Sudoers",
+    "pm_warn": "⚠️ Warning {0}/{1}\n\nThis is an assistant account. Please do not send messages here.\n\nUse our bot in groups instead.",
+    "pm_blocked": "❌ You have been blocked for spamming this assistant account."
 }

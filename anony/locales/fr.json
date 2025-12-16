@@ -149,5 +149,7 @@
     "help_5": "Lecture",
     "help_6": "File d'attente",
     "help_7": "Statistiques",
-    "help_8": "Sudoers"
+    "help_8": "Sudoers",
+    "pm_warn": "⚠️ Avertissement {0}/{1}\n\nCeci est un compte assistant. Veuillez ne pas envoyer de messages ici.\n\nUtilisez plutôt notre bot dans les groupes.",
+    "pm_blocked": "❌ Vous avez été bloqué pour avoir spammé ce compte assistant."
 }
