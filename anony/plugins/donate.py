@@ -11,16 +11,16 @@ from anony import app, config
 @app.on_message(filters.command(["donate"]))
 async def donate_command(_, message: types.Message):
     """Show donate information with QR code link."""
-    donate_text = (
-        "💰 **Dukung Kami!**\n\n"
-        "Terima kasih atas dukungan Anda untuk terus mengembangkan bot ini.\n\n"
-        "Klik tombol di bawah untuk melihat QR code donasi:"
-    )
+    donate_text = message.lang["donate_text"]
     
-    await message.reply_text(
-        text=donate_text,
-        reply_markup=types.InlineKeyboardMarkup(
-            [[types.InlineKeyboardButton(text="💳 Lihat QR Donasi", url=config.DONATE_LINK)]]
-        ),
-        quote=True,
-    )
+    try:
+        await message.reply_photo(
+            photo=config.DONATE_QR_IMAGE,
+            caption=donate_text,
+            quote=True,
+        )
+    except Exception:
+        await message.reply_text(
+            "❌ Gagal mengirim QR code. Pastikan URL gambar di config benar.",
+            quote=True,
+        )

@@ -179,11 +179,7 @@ async def _donate_cb(_, query: types.CallbackQuery):
     
     await query.answer()
     
-    donate_text = (
-        "💰 **Dukung Kami!**\n\n"
-        "Terima kasih atas dukungan Anda untuk terus mengembangkan bot ini.\n\n"
-        "Scan QR code di bawah ini untuk donasi:"
-    )
+    donate_text = query.lang["donate_text"]
     
     try:
         await query.message.reply_photo(

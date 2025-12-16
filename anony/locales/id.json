@@ -157,5 +157,6 @@
     "song_searching": "Mencari lagu...",
     "song_downloading": "Mengunduh audio...",
     "song_not_found": "Gagal menemukan atau mengunduh lagu.\n\nJika masalah berlanjut, laporkan ke <a href={0}>chat dukungan</a>.",
-    "song_size_limit": "File audio terlalu besar (maksimum 50MB).\n\nCoba lagu dengan durasi lebih pendek."
+    "song_size_limit": "File audio terlalu besar (maksimum 50MB).\n\nCoba lagu dengan durasi lebih pendek.",
+    "donate_text": "✨ **Dukung Bot Musik Tetap Hidup!** ✨\n\nSuka dengan fitur bot ini? Bantu kami agar server tetap menyala dan bot bisa terus memutar musik tanpa henti! 🚀\nDonasi kalian sangat berarti untuk membayar biaya server bulanan kami. 🔌\n\nYuk scan QR di bawah ini untuk donasi! 👇"
 }
