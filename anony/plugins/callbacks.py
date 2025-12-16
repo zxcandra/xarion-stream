@@ -122,7 +122,7 @@ async def _help(_, query: types.CallbackQuery):
 
     if data[1] == "back":
         return await query.edit_message_text(
-            text="ℹ️ **Menu Bantuan**\n\nPilih kategori di bawah untuk melihat perintah yang tersedia:", 
+            text="<b>Klik tombol di bawah untuk mendapatkan informasi tentang perintah saya.</b>\n\n<i><b>Catatan:</b> Semua perintah dapat digunakan dengan /</i>", 
             reply_markup=buttons.help_markup({})
         )
     elif data[1] == "close":
@@ -134,19 +134,18 @@ async def _help(_, query: types.CallbackQuery):
 
     # Help text mapping - hardcoded from id.json
     help_texts = {
-        "help_0": "**Admin Commands**\n\nCommands untuk admin grup.",
-        "help_1": "**Auth Commands**\n\nCommands untuk authorization.",
-        "help_2": "**Blacklist Commands**\n\nCommands untuk blacklist.",
-        "help_3": "**Bahasa Commands**\n\nCommands untuk bahasa.",
-        "help_4": "**Ping Commands**\n\nCommands untuk ping.",
-        "help_5": "**Play Commands**\n\nCommands untuk memutar musik.",
-        "help_6": "**Queue Commands**\n\nCommands untuk queue.",
-        "help_7": "**Broadcast Commands**\n\nCommands untuk broadcast.",
-        "help_8": "**Sudo Commands**\n\nCommands untuk sudo."
+        "admins": "<u><b>Perintah admin:</b></u>\n\n/pause: Jeda streaming yang sedang berjalan.\n/resume: Lanjutkan streaming yang dijeda.\n/skip: Lewati streaming saat ini.\n/stop: Hentikan streaming yang sedang berjalan.\n\n/seek [durasi dalam detik]: Lompat ke waktu tertentu dalam streaming.\n/seekback [durasi dalam detik]: Mundur ke waktu tertentu dalam streaming.\n\n/reload: Muat ulang cache admin.",
+        "auth": "<u><b>Perintah auth:</b></u>\n<i>Pengguna terotorisasi dapat mengontrol streaming tanpa menjadi admin.</i>\n\n/auth: Tambahkan pengguna ke daftar terotorisasi.\n/unauth: Hapus pengguna dari daftar terotorisasi.",
+        "blist": "<u><b>Perintah blacklist:</b></u>\n<i>Chat dan pengguna yang di-blacklist tidak bisa menggunakan bot.</i>\n\n/blacklist [chat_id|user_id]: Tambahkan chat/pengguna ke blacklist.\n/unblacklist [chat_id|user_id]: Hapus chat/pengguna dari blacklist",
+        "ping": "<u><b>Perintah ping:</b></u>\n\n/help: Menampilkan menu bantuan bot.\n\n/ping: Cek ping dan penggunaan memori bot.\n\n/start: Mulai bot.\n\n/sudolist: Menampilkan daftar pengguna sudo bot.",
+        "play": "<u><b>Perintah play:</b></u>\n<i>Anda dapat memutar musik di obrolan video menggunakan perintah berikut.</i>\n\n/play [nama lagu/url youtube/balas ke audio]: Putar musik di obrolan video.\n/vplay [nama lagu/url youtube/balas ke video]: Putar video musik di obrolan video.\n-f: Paksa putar musik di obrolan video.\n-v: Putar video musik di obrolan video.\n\n<b>Contoh:</b> <code>/play -f -v attention</code>",
+        "queue": "<u><b>Perintah queue:</b></u>\n\n/queue: Menampilkan track yang sedang dalam antrian.",
+        "stats": "<u><b>Perintah stats:</b></u>\n\n/stats: Menampilkan statistik bot.",
+        "sudo": "<b><u>Perintah sudo:</b></u>\n\n/ac: Menampilkan jumlah panggilan aktif.\n\n/activevc: Menampilkan daftar panggilan aktif.\n\n/broadcast [balas ke pesan]: Broadcast pesan ke semua chat.\n-nochat: Kecualikan grup dari broadcast.\n-user: Sertakan pengguna dalam broadcast.\n-copy: Hapus tag forwarded dari pesan broadcast.\n<b>Contoh:</b> <code>/broadcast -user -copy</code>\n\n/eval: Jalankan kode yang diberikan.\n\n/logs: Kirim file log.\n\n/logger [on|off]: Aktifkan/nonaktifkan logger.\n\n/restart: Restart bot.\n\n/addsudo: Tambahkan pengguna ke daftar sudo.\n/rmsudo: Hapus pengguna dari daftar sudo."
     }
     
     await query.edit_message_text(
-        text=help_texts.get(f"help_{data[1]}", "Info tidak tersedia."),
+        text=help_texts.get(data[1], "Info tidak tersedia."),
         reply_markup=buttons.help_markup({}, True),
     )
 
