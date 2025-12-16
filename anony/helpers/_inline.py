@@ -57,7 +57,8 @@ class Inline:
                 ]
             ]
         else:
-            cbs = ["admins", "auth", "blist", "lang", "ping", "play", "queue", "stats", "sudo"]
+            # Language button removed - Indonesian only
+            cbs = ["admins", "auth", "blist", "ping", "play", "queue", "stats", "sudo"]
             buttons = [
                 self.ikb(text=_lang[f"help_{i}"], callback_data=f"help {cb}")
                 for i, cb in enumerate(cbs)
@@ -122,13 +123,7 @@ class Inline:
                     ),
                     self.ikb(text=cmd_delete, callback_data="settings delete"),
                 ],
-                [
-                    self.ikb(
-                        text=lang["language"] + " ➜",
-                        callback_data="settings",
-                    ),
-                    self.ikb(text=lang_codes[language], callback_data="language"),
-                ],
+                # Language option removed - Indonesian only
             ]
         )
 
@@ -158,7 +153,8 @@ class Inline:
                 ]
             ]
         else:
-            rows += [[self.ikb(text=lang["language"], callback_data="language")]]
+            # Language button removed - Indonesian only
+            pass
         return self.ikm(rows)
 
     def yt_key(self, link: str) -> types.InlineKeyboardMarkup:

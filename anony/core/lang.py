@@ -48,8 +48,8 @@ class Language:
         return languages
 
     async def get_lang(self, chat_id: int) -> dict:
-        lang_code = await db.get_lang(chat_id)
-        return self.languages[lang_code]
+        # FORCE INDONESIAN ONLY
+        return self.languages["id"]
 
     def get_languages(self) -> dict:
         files = {f.stem for f in self.lang_dir.glob("*.json")}
@@ -77,8 +77,9 @@ class Language:
                     logger.warning(f"Chat {chat.id} is blacklisted, leaving...")
                     return await chat.leave()
 
-                lang_code = await db.get_lang(chat.id)
-                lang_dict = self.languages[lang_code]
+                # FORCE INDONESIAN ONLY
+                lang_code = "id"
+                lang_dict = self.languages["id"]
 
                 setattr(fallen, "lang", lang_dict)
                 try:

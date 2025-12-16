@@ -21,12 +21,8 @@ MESSAGES_LOADED = False
 # Default message
 DEFAULT_WARN_MSG = (
     "⚠️ **MOHON JANGAN SPAM!**\n\n"
-    "**🇮🇩 Bahasa Indonesia:**\n"
     "Jangan kirim pesan ke akun assistant ini.\n"
-    "Pesan Anda akan terhapus otomatis dalam 3 detik.\n\n"
-    "**🇬🇧 English:**\n"
-    "Do not send messages to this assistant account.\n"
-    "Your message will be auto-deleted in 3 seconds."
+    "Pesan Anda akan terhapus otomatis dalam 3 detik."
 )
 
 
@@ -157,19 +153,19 @@ async def reset_pm_messages(client, message: Message):
 async def pm_auto_help(client, message: Message):
     """Show Auto Clear PM help."""
     help_text = (
-        "**🧹 Auto Clear PM (No Block)**\n\n"
+        "**🧹 Auto Clear PM (Tanpa Blokir)**\n\n"
         
         "**Cara Kerja:**\n"
-        "• User PM → Bot Warning\n"
-        "• Tunggu 3 Detik\n"
-        "• Hapus pesan User + Warning\n"
+        "• User PM → Bot kirim peringatan\n"
+        "• Tunggu 3 detik\n"
+        "• Hapus pesan user + peringatan\n"
         "• TIDAK ADA BLOKIR\n\n"
         
-        "**Commands:**\n"
-        "• `.approve` - White list user (chat gak dihapus)\n"
+        "**Command:**\n"
+        "• `.approve` - Whitelist user (chat tidak dihapus)\n"
         "• `.disapprove` - Kembalikan ke auto delete\n"
-        "• `.setpmwarn` - Custom pesan warning\n"
-        "• `.resetpm` - Reset pesan default"
+        "• `.setpmwarn` - Custom pesan peringatan\n"
+        "• `.resetpm` - Reset ke pesan default"
     )
     
     await message.reply_text(help_text)
