@@ -46,7 +46,7 @@ async def anti_pm_assistant(client, message: Message):
     lang_dict = lang_helper.languages.get(_lang, lang_helper.languages["en"])
     
     # Send warning message
-    if warn_count < config.PM_WARN_COUNT:
+    if warn_count <= config.PM_WARN_COUNT:
         await message.reply_text(
             lang_dict["pm_warn"].format(warn_count, config.PM_WARN_COUNT)
         )
