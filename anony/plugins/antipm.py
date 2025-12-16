@@ -76,10 +76,10 @@ async def pmpermit_handler(client, message: Message):
     
     # Check if user is already blocked - SILENTLY IGNORE
     if await db.is_pm_blocked(user_id):
-        # Don't reply, just block silently
+        # User already blocked, ensure Telegram block is applied
         try:
             await client.block_user(user_id)
-        except:
+        except Exception as e:
             pass
         return
     
@@ -93,12 +93,26 @@ async def pmpermit_handler(client, message: Message):
     # Block if exceeded
     if warn_count > config.PM_WARN_COUNT:
         block_msg = CUSTOM_PM_BLOCK if CUSTOM_PM_BLOCK else DEFAULT_BLOCK_MSG
-        await message.reply_text(block_msg)
-        # Block user
         try:
-            await client.block_user(user_id)
+            await message.reply_text(block_msg)
         except:
             pass
+        
+        # Hard block the user via Telegram
+        try:
+            # Use Pyrogram's block_user method
+            await client.block_user(user_id)
+        except Exception as e:
+            # If block_user doesn't work, try alternative method
+            try:
+                from pyrogram.raw import functions
+                await client.invoke(
+                    functions.contacts.Block(
+                        id=await client.resolve_peer(user_id)
+                    )
+                )
+            except:
+                pass
         return
     
     # Send warning
