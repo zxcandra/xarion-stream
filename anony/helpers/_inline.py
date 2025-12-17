@@ -45,9 +45,7 @@ class Inline:
             )
             keyboard.append(
                 [
-                [
                     self.ikb(text="🔄", callback_data=f"controls replay {chat_id}"),
-                ]
                 ]
             )
         return self.ikm(keyboard)

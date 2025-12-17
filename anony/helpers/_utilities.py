@@ -120,12 +120,15 @@ class Utilities:
         if delay is None:
             delay = config.AUTO_DELETE_TIME
         
-        if delay > 0:
-            await asyncio.sleep(delay)
-            try:
-                await message.delete()
-            except:
-                pass
+        async def _delete():
+            if delay > 0:
+                await asyncio.sleep(delay)
+                try:
+                    await message.delete()
+                except:
+                    pass
+
+        asyncio.create_task(_delete())
 
     def format_number(self, num):
         """Format number to readable format (1.2K, 1.5M, etc)."""
