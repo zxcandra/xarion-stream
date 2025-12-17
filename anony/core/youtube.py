@@ -98,6 +98,20 @@ class YouTube:
             pass
         return tracks
 
+    async def formats(self, video_id: str, lyrics: bool = False):
+        """Get available formats for a YouTube video."""
+        url = self.base + video_id
+        try:
+            def _get_formats():
+                with yt_dlp.YoutubeDL({"quiet": True}) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    return info.get("formats", []), url
+            
+            return await asyncio.to_thread(_get_formats)
+        except Exception as e:
+            logger.error(f"Failed to get formats: {e}")
+            return [], url
+
     async def download(self, video_id: str, video: bool = False) -> str | None:
         url = self.base + video_id
         ext = "mp4" if video else "webm"
