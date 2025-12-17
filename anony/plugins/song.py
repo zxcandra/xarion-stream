@@ -55,23 +55,9 @@ async def song_command(_, message: types.Message):
             action=enums.ChatAction.UPLOAD_AUDIO
         )
         
-        # Try to download thumbnail
-        thumb_path = None
-        try:
-            import aiohttp
-            thumb_path = f"downloads/{track.id}_thumb.jpg"
-            async with aiohttp.ClientSession() as session:
-                async with session.get(track.thumbnail) as resp:
-                    if resp.status == 200:
-                        with open(thumb_path, 'wb') as f:
-                            f.write(await resp.read())
-        except:
-            thumb_path = None
-        
-        # Send audio
+        # Send audio without thumbnail for now
         await message.reply_audio(
             audio=file_path,
-            thumb=thumb_path,
             title=track.title,
             performer=track.channel_name,
             duration=track.duration_sec
@@ -82,8 +68,6 @@ async def song_command(_, message: types.Message):
         # Cleanup
         try:
             os.remove(file_path)
-            if thumb_path:
-                os.remove(thumb_path)
         except:
             pass
             
