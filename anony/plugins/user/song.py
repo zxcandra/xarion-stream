@@ -15,11 +15,11 @@ async def song_command(_, message: types.Message):
     if len(message.command) < 2:
         return await message.reply_text(
             "ℹ️ <b>Penggunaan:</b>\n\n<blockquote><code>/song [judul lagu]</code>\nAtau: <code>/song [youtube url]</code></blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     query = message.text.split(None, 1)[1]
-    mystic = await message.reply_text("🔎 <b>Mencari Lagu...</b>", parse_mode="html")
+    mystic = await message.reply_text("🔎 <b>Mencari Lagu...</b>", parse_mode=enums.ParseMode.HTML)
     
     try:
         # Search for the song
@@ -27,13 +27,13 @@ async def song_command(_, message: types.Message):
         if not track:
             return await mystic.edit_text(
                 "❌ <b>Lagu Tidak Ditemukan</b>\n\n<blockquote>Coba gunakan kata kunci atau link yang berbeda</blockquote>",
-                parse_mode="html"
+                parse_mode=enums.ParseMode.HTML
             )
         
         # Auto download - no confirmation needed
         await mystic.edit_text(
             "⬇️ <b>Mengunduh Audio...</b>\n\n<blockquote>Mohon tunggu sebentar...</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
         
         import yt_dlp
@@ -80,7 +80,7 @@ async def song_command(_, message: types.Message):
         if not os.path.exists(file_path):
             return await mystic.edit_text(
                 f"❌ <b>Gagal Mengunduh</b>\n\n<blockquote>Silakan lapor ke <a href='{config.SUPPORT_CHANNEL}'>chat dukungan</a></blockquote>",
-                parse_mode="html"
+                parse_mode=enums.ParseMode.HTML
             )
         
         import os
@@ -91,10 +91,10 @@ async def song_command(_, message: types.Message):
             os.remove(file_path)
             return await mystic.edit_text(
                 "❌ <b>File Terlalu Besar</b>\n\n<blockquote>Ukuran file >50MB. Coba lagu dengan durasi lebih pendek.</blockquote>",
-                parse_mode="html"
+                parse_mode=enums.ParseMode.HTML
             )
         
-        await mystic.edit_text("⬆️ <b>Mengunggah Audio...</b>", parse_mode="html")
+        await mystic.edit_text("⬆️ <b>Mengunggah Audio...</b>", parse_mode=enums.ParseMode.HTML)
         await app.send_chat_action(
             chat_id=message.chat.id,
             action=enums.ChatAction.UPLOAD_AUDIO
@@ -152,5 +152,5 @@ async def song_command(_, message: types.Message):
             pass
             
     except Exception as e:
-        await mystic.edit_text(f"❌ <b>Terjadi Kesalahan</b>\n\n<blockquote>{str(e)}</blockquote>", parse_mode="html")
+        await mystic.edit_text(f"❌ <b>Terjadi Kesalahan</b>\n\n<blockquote>{str(e)}</blockquote>", parse_mode=enums.ParseMode.HTML)
 

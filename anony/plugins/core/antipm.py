@@ -5,7 +5,7 @@
 
 
 import asyncio
-from pyrogram import filters
+from pyrogram import enums, filters
 from pyrogram.types import Message
 
 from anony import config, db, userbot
@@ -94,12 +94,12 @@ async def approve_pm(client, message: Message):
         APPROVED_USERS.add(user_id)
         await message.reply_text(
             f"✅ <b>Approved!</b>\n\n<blockquote>User {message.reply_to_message.from_user.mention} telah diizinkan untuk PM.</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     else:
         await message.reply_text(
             "ℹ️ <b>Penggunaan:</b>\n\n<blockquote>Reply ke pesan user untuk approve</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
 
 
@@ -114,12 +114,12 @@ async def disapprove_pm(client, message: Message):
         APPROVED_USERS.discard(user_id)
         await message.reply_text(
             f"❌ <b>Disapproved!</b>\n\n<blockquote>User {message.reply_to_message.from_user.mention} kembali ke mode auto-clear.</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     else:
         await message.reply_text(
             "ℹ️ <b>Penggunaan:</b>\n\n<blockquote>Reply ke pesan user untuk disapprove</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
 
 
@@ -134,7 +134,7 @@ async def set_pm_warn(client, message: Message):
     if len(message.command) < 2:
         await message.reply_text(
             "ℹ️ <b>Set PM Warning</b>\n\n<blockquote><code>.setpmwarn [pesan]</code>\n\nContoh: <code>.setpmwarn ⚠️ Jangan spam!</code></blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
         return
     
@@ -143,7 +143,7 @@ async def set_pm_warn(client, message: Message):
     await db.set_pm_warn_msg(custom_msg)
     await message.reply_text(
         f"✅ <b>Custom Warning Set!</b>\n\n<blockquote><b>Preview:</b>\n{custom_msg}</blockquote>",
-        parse_mode="html"
+        parse_mode=enums.ParseMode.HTML
     )
 
 
@@ -159,7 +159,7 @@ async def reset_pm_messages(client, message: Message):
     await db.clear_pm_messages()
     await message.reply_text(
         "✅ <b>Reset Berhasil!</b>\n\n<blockquote>Pesan PM warning kembali ke default.</blockquote>",
-        parse_mode="html"
+        parse_mode=enums.ParseMode.HTML
     )
 
 
@@ -183,4 +183,4 @@ async def pm_auto_help(client, message: Message):
         "• <code>.resetpm</code> - Reset default"
     )
     
-    await message.reply_text(help_text, parse_mode="html")
+    await message.reply_text(help_text, parse_mode=enums.ParseMode.HTML)

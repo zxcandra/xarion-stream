@@ -3,7 +3,7 @@
 # This file is part of AnonXMusic
 
 
-from pyrogram import filters, types
+from pyrogram import enums, filters, types
 
 from anony import app, db
 from anony.helpers import admin_check, utils
@@ -17,14 +17,14 @@ async def auth_user(_, message: types.Message):
     if not message.reply_to_message and len(message.command) < 2:
         return await message.reply_text(
             "ℹ️ <b>Penggunaan:</b>\n\n<blockquote>Reply ke user atau berikan user ID/username</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     user = await utils.extract_user(message)
     if not user:
         return await message.reply_text(
             "❌ <b>User Tidak Ditemukan</b>\n\n<blockquote>Pastikan user ID atau username valid</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     # Check if user is admin
@@ -32,19 +32,19 @@ async def auth_user(_, message: types.Message):
     if user.id in admins:
         return await message.reply_text(
             f"⚠️ <b>Sudah Admin</b>\n\n<blockquote>{user.mention} adalah admin dan otomatis terotorisasi</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     if await db.is_auth(message.chat.id, user.id):
         return await message.reply_text(
             f"ℹ️ <b>Sudah Terotorisasi</b>\n\n<blockquote>{user.mention} sudah ada dalam daftar authorized</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     await db.add_auth(message.chat.id, user.id)
     await message.reply_text(
         f"✅ <b>User Diotorisasi</b>\n\n<blockquote>{user.mention} telah ditambahkan ke daftar authorized</blockquote>",
-        parse_mode="html"
+        parse_mode=enums.ParseMode.HTML
     )
 
 
@@ -56,24 +56,24 @@ async def unauth_user(_, message: types.Message):
     if not message.reply_to_message and len(message.command) < 2:
         return await message.reply_text(
             "ℹ️ <b>Penggunaan:</b>\n\n<blockquote>Reply ke user atau berikan user ID/username</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     user = await utils.extract_user(message)
     if not user:
         return await message.reply_text(
             "❌ <b>User Tidak Ditemukan</b>\n\n<blockquote>Pastikan user ID atau username valid</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     if not await db.is_auth(message.chat.id, user.id):
         return await message.reply_text(
             f"ℹ️ <b>Belum Terotorisasi</b>\n\n<blockquote>{user.mention} tidak ada dalam daftar authorized</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     await db.rm_auth(message.chat.id, user.id)
     await message.reply_text(
         f"✅ <b>Otorisasi Dihapus</b>\n\n<blockquote>{user.mention} telah dihapus dari daftar authorized</blockquote>",
-        parse_mode="html"
+        parse_mode=enums.ParseMode.HTML
     )

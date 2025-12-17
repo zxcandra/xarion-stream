@@ -5,7 +5,7 @@
 
 from pathlib import Path
 
-from pyrogram import filters, types
+from pyrogram import enums, filters, types
 
 from anony import anon, app, config, db, queue, tg, yt
 from anony.helpers import buttons, utils
@@ -38,7 +38,7 @@ async def play_hndlr(
     if config.AUTO_DELETE_COMMANDS:
         await utils.auto_delete(m)
     
-    sent = await m.reply_text("🔎 <b>Mencari...</b>", parse_mode="html")
+    sent = await m.reply_text("🔎 <b>Mencari...</b>", parse_mode=enums.ParseMode.HTML)
     file = None
     mention = m.from_user.mention
     media = tg.get_media(m.reply_to_message) if m.reply_to_message else None
@@ -48,7 +48,7 @@ async def play_hndlr(
         if "playlist" in url:
             await sent.edit_text(
                 "🔄 <b>Mengambil Playlist...</b>\n\n<blockquote>Mohon tunggu sebentar...</blockquote>",
-                parse_mode="html"
+                parse_mode=enums.ParseMode.HTML
             )
             tracks = await yt.playlist(
                 config.PLAYLIST_LIMIT, mention, url, video
@@ -57,7 +57,7 @@ async def play_hndlr(
             if not tracks:
                 await sent.edit_text(
                     "❌ <b>Gagal Mengambil Playlist</b>\n\n<blockquote>Pastikan link playlist valid dan tidak private</blockquote>",
-                    parse_mode="html"
+                    parse_mode=enums.ParseMode.HTML
                 )
                 await utils.auto_delete(sent)
                 return
@@ -71,7 +71,7 @@ async def play_hndlr(
         if not file:
             await sent.edit_text(
                 f"❌ <b>Gagal Memproses</b>\n\n<blockquote>Jika masalah berlanjut, laporkan ke <a href={config.SUPPORT_CHANNEL}>chat dukungan</a></blockquote>",
-                parse_mode="html"
+                parse_mode=enums.ParseMode.HTML
             )
             await utils.auto_delete(sent)
             return
@@ -82,7 +82,7 @@ async def play_hndlr(
         if not file:
             await sent.edit_text(
                 f"❌ <b>Gagal Memproses</b>\n\n<blockquote>Jika masalah berlanjut, laporkan ke <a href={config.SUPPORT_CHAT}>chat dukungan</a></blockquote>",
-                parse_mode="html"
+                parse_mode=enums.ParseMode.HTML
             )
             await utils.auto_delete(sent)
             return
@@ -94,7 +94,7 @@ async def play_hndlr(
     if not file:
         await sent.edit_text(
             "❌ <b>Lagu Tidak Ditemukan</b>\n\n<blockquote><b>Penggunaan:</b>\n<code>/play attention</code>\n<code>/play [youtube url]</code></blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
         await utils.auto_delete(sent)
         return
@@ -102,7 +102,7 @@ async def play_hndlr(
     if file.duration_sec > config.DURATION_LIMIT:
         await sent.edit_text(
             f"❌ <b>Durasi Terlalu Panjang</b>\n\n<blockquote>Maksimal durasi yang diperbolehkan adalah {config.DURATION_LIMIT // 60} menit</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
         await utils.auto_delete(sent)
         return
@@ -122,7 +122,7 @@ async def play_hndlr(
                 reply_markup=buttons.play_queued(
                     m.chat.id, file.id, "Putar Sekarang"
                 ),
-                parse_mode="html"
+                parse_mode=enums.ParseMode.HTML
             )
             await utils.auto_delete(sent)
             if tracks:
@@ -139,7 +139,7 @@ async def play_hndlr(
         if Path(fname).exists():
             file.file_path = fname
         else:
-            await sent.edit_text("⬇️ <b>Mengunduh audio...</b>", parse_mode="html")
+            await sent.edit_text("⬇️ <b>Mengunduh audio...</b>", parse_mode=enums.ParseMode.HTML)
             file.file_path = await yt.download(file.id, video=video)
 
     await anon.play_media(chat_id=m.chat.id, message=sent, media=file)

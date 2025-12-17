@@ -7,7 +7,7 @@ import io
 import sys
 import traceback
 
-from pyrogram import filters, types
+from pyrogram import enums, filters, types
 
 from anony import app
 
@@ -19,7 +19,7 @@ async def eval_cmd(_, message: types.Message):
     if len(message.command) < 2 and not message.reply_to_message:
         return await message.reply_text(
             "ℹ️ <b>Penggunaan Eval</b>\n\n<blockquote><code>/eval [code]</code></blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     code = message.text.split(None, 1)[1] if len(message.command) > 1 else message.reply_to_message.text
@@ -40,5 +40,5 @@ async def eval_cmd(_, message: types.Message):
     
     await message.reply_text(
         f"💻 <b>Eval Output</b>\n\n<pre>{output}</pre>",
-        parse_mode="html"
+        parse_mode=enums.ParseMode.HTML
     )

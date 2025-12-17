@@ -21,12 +21,12 @@ async def _queue(_, message: types.Message):
     if not await db.get_call(message.chat.id):
         sent = await message.reply_text(
             "❌ <b>Tidak ada streaming</b>\n\n<blockquote>Gunakan /play untuk mulai memutar musik</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
         await utils.auto_delete(sent)
         return
     
-    sent = await message.reply_text("🔄 <b>Mengambil Antrian...</b>", parse_mode="html")
+    sent = await message.reply_text("🔄 <b>Mengambil Antrian...</b>", parse_mode=enums.ParseMode.HTML)
     
     playing = await db.playing(message.chat.id)
     items = queue.get_queue(message.chat.id)
@@ -34,7 +34,7 @@ async def _queue(_, message: types.Message):
     if not items:
         await sent.edit_text(
             "❌ <b>Antrian Kosong</b>\n\n<blockquote>Tidak ada lagu yang sedang menunggu</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
         await utils.auto_delete(sent)
         return

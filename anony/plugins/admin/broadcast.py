@@ -5,7 +5,7 @@
 
 import asyncio
 
-from pyrogram import filters, types
+from pyrogram import enums, filters, types
 
 from anony import app, db
 
@@ -17,7 +17,7 @@ async def broadcast_message(_, message: types.Message):
     if not message.reply_to_message:
         return await message.reply_text(
             "ℹ️ <b>Penggunaan Broadcast</b>\n\n<blockquote>Reply ke pesan yang ingin di-broadcast</blockquote>",
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
     
     mode = "chats" if message.command[0] == "gcast" else "users"
@@ -25,7 +25,7 @@ async def broadcast_message(_, message: types.Message):
     
     sent = await message.reply_text(
         f"📡 <b>Broadcasting...</b>\n\n<blockquote>Target: {len(targets)} {mode}</blockquote>",
-        parse_mode="html"
+        parse_mode=enums.ParseMode.HTML
     )
     
     success = 0
@@ -41,7 +41,7 @@ async def broadcast_message(_, message: types.Message):
     
     await sent.edit_text(
         f"✅ <b>Broadcast Selesai</b>\n\n<blockquote><b>Sukses:</b> {success}\n<b>Gagal:</b> {failed}</blockquote>",
-        parse_mode="html"
+        parse_mode=enums.ParseMode.HTML
     )
 
 
@@ -50,5 +50,5 @@ async def cancel_broadcast(_, message: types.Message):
     """Cancel ongoing broadcast."""
     await message.reply_text(
         "🚫 <b>Broadcast Dibatalkan</b>\n\n<blockquote>Proses broadcast telah dihentikan</blockquote>",
-        parse_mode="html"
+        parse_mode=enums.ParseMode.HTML
     )
