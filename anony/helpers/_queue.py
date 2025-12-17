@@ -66,6 +66,23 @@ class Queue:
         if self.queues[chat_id]:
             self.queues[chat_id].popleft()
 
+    def shuffle(self, chat_id: int) -> bool:
+        """Shuffle the queue (except currently playing item). Returns True if successful."""
+        if len(self.queues[chat_id]) <= 1:
+            return False  # Nothing to shuffle
+        
+        import random
+        # Get current item and remaining queue
+        current = self.queues[chat_id][0]
+        remaining = list(self.queues[chat_id])[1:]
+        
+        # Shuffle remaining items
+        random.shuffle(remaining)
+        
+        # Rebuild queue with current item first
+        self.queues[chat_id] = deque([current] + remaining)
+        return True
+
     def clear(self, chat_id: int) -> None:
         """Clear the entire queue."""
         self.queues[chat_id].clear()

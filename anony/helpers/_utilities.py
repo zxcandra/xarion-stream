@@ -126,3 +126,23 @@ class Utilities:
                 await message.delete()
             except:
                 pass
+
+    def format_number(self, num):
+        """Format number to readable format (1.2K, 1.5M, etc)."""
+        if num >= 1_000_000:
+            return f"{num / 1_000_000:.1f}M"
+        elif num >= 1_000:
+            return f"{num / 1_000:.1f}K"
+        return str(num)
+
+    def get_medal(self, rank):
+        """Get medal emoji for ranking."""
+        medals = {1: "🥇", 2: "🥈", 3: "🥉"}
+        return medals.get(rank, f"{rank}.")
+
+    def progress_bar(self, value, total, length=10):
+        """Generate progress bar."""
+        if total == 0:
+            return "▱" * length
+        filled = int((value / total) * length)
+        return "▰" * filled + "▱" * (length - filled)

@@ -11,16 +11,27 @@ from anony.helpers import buttons
 
 @app.on_message(filters.command(["queue", "q"]) & filters.group & ~app.bl_users)
 async def _queue(_, message: types.Message):
-    if not await db.get_call(message.chat.id):
-        return await message.reply_text("Tidak ada streaming yang sedang diputar.")
+    from anony import config
+    from anony.helpers import utils
     
-    await message.reply_text("Mengambil antrian...")
+    # Auto-delete command if enabled
+    if config.AUTO_DELETE_COMMANDS:
+        await utils.auto_delete(message)
+    
+    if not await db.get_call(message.chat.id):
+        sent = await message.reply_text("Tidak ada streaming yang sedang diputar.")
+        await utils.auto_delete(sent)
+        return
+    
+    sent = await message.reply_text("Mengambil antrian...")
     
     playing = await db.playing(message.chat.id)
     items = queue.get_queue(message.chat.id)
     
     if not items:
-        return await message.reply_text("Antrian kosong.")
+        await sent.edit_text("Antrian kosong.")
+        await utils.auto_delete(sent)
+        return
     
     # Emoji numbers for first 10 items
     emoji_numbers = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
@@ -52,7 +63,7 @@ async def _queue(_, message: types.Message):
     if len(items) > 10:
         text += f"\n\n➕ <i>... dan {len(items) - 10} lagu lagi</i>"
     
-    await message.reply_text(
+    await sent.edit_text(
         text,
         parse_mode=enums.ParseMode.HTML,
         reply_markup=buttons.queue_markup(
@@ -61,3 +72,4 @@ async def _queue(_, message: types.Message):
             playing
         )
     )
+    await utils.auto_delete(sent)

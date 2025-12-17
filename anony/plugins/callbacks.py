@@ -88,6 +88,31 @@ async def _controls(_, query: types.CallbackQuery):
         status = "Streaming diputar ulang"
         reply = f"{user} memutar ulang streaming."
 
+    elif action == "seek_forward":
+        # Seek forward 10 seconds
+        try:
+            await anon.seek(chat_id, 10)
+            return await query.answer("⏩ +10 detik", show_alert=False)
+        except Exception as e:
+            return await query.answer("❌ Seek tidak tersedia", show_alert=True)
+    
+    elif action == "seek_back":
+        # Seek backward 10 seconds
+        try:
+            await anon.seek(chat_id, -10)
+            return await query.answer("⏪ -10 detik", show_alert=False)
+        except Exception as e:
+            return await query.answer("❌ Seek tidak tersedia", show_alert=True)
+    
+    elif action == "shuffle":
+        # Shuffle the queue
+        success = queue.shuffle(chat_id)
+        if success:
+            items = queue.get_queue(chat_id)
+            return await query.answer(f"🔀 {len(items) - 1} lagu di-shuffle!", show_alert=True)
+        else:
+            return await query.answer("❌ Tidak ada yang bisa di-shuffle", show_alert=True)
+
     elif action == "stop":
         await anon.stop(chat_id)
         status = "Streaming dihentikan"

@@ -27,6 +27,25 @@ class TgCall(PyTgCalls):
         await db.playing(chat_id, paused=False)
         return await client.resume(chat_id)
 
+    async def seek(self, chat_id: int, seconds: int) -> bool:
+        """Seek forward (+) or backward (-) by the specified number of seconds."""
+        client = await db.get_assistant(chat_id)
+        try:
+            # Get current playback time
+            current_time = await client.get_active_call(chat_id)
+            if not current_time:
+                return False
+            
+            # Calculate new position (in milliseconds)
+            new_time = max(0, current_time.time + (seconds * 1000))
+            
+            # Seek to new position
+            await client.seeked(chat_id, new_time)
+            return True
+        except Exception as e:
+            logger.error(f"Seek error: {e}")
+            return False
+
     async def stop(self, chat_id: int) -> None:
         client = await db.get_assistant(chat_id)
         try:

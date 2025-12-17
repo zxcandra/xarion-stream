@@ -34,6 +34,10 @@ async def play_hndlr(
     video: bool = False,
     url: str = None,
 ) -> None:
+    # Auto-delete command if enabled
+    if config.AUTO_DELETE_COMMANDS:
+        await utils.auto_delete(m)
+    
     sent = await m.reply_text("Mencari...")
     file = None
     mention = m.from_user.mention

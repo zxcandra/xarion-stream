@@ -72,27 +72,45 @@ async def get_stats_callback(_, query: types.CallbackQuery):
     total_plays = 0
     
     if what in ["Tracks", "Here"]:
-        # Display tracks
+        # Display tracks with enhanced formatting
+        from anony.helpers import utils
+        
         for track_id, data in list(stats.items())[:10]:
             limit += 1
             total_plays += data["spot"]
             title = data["title"][:35]
             count = data["spot"]
             
+            # Medal for top 3
+            rank_icon = utils.get_medal(limit)
+            
             if track_id == "telegram":
-                msg += f"🎵 <a href='https://t.me/{config.SUPPORT_CHANNEL}'>Telegram Media</a> <b>dimainkan {count} kali</b>\n"
+                msg += f"{rank_icon} <a href='https://t.me/{config.SUPPORT_CHANNEL}'>Telegram Media</a> • <b>{utils.format_number(count)} plays</b>\n"
             else:
-                msg += f"🎵 <a href='https://www.youtube.com/watch?v={track_id}'>{title}</a> <b>dimainkan {count} kali</b>\n"
+                msg += f"{rank_icon} <a href='https://www.youtube.com/watch?v={track_id}'>{title}</a> • <b>{utils.format_number(count)} plays</b>\n"
         
         if what == "Tracks":
             queries = await db.get_queries()
-            header = f"🎵 <b>Statistik Global</b>\n\nTotal Queries: {queries}\nBot: {app.name}\nTotal Tracks: {len(stats)}\nTotal Plays: {total_plays}\n\n<b>Top {limit} Most Played:</b>\n\n<blockquote>"
+            header = f"🎵 <b>Statistik Global</b>\n\n"
+            header += f"<blockquote>📊 <b>Total Queries:</b> {utils.format_number(queries)}\n"
+            header += f"🎸 <b>Bot:</b> {app.name}\n"
+            header += f"🎶 <b>Total Tracks:</b> {utils.format_number(len(stats))}\n"
+            header += f"▶️ <b>Total Plays:</b> {utils.format_number(total_plays)}</blockquote>\n\n"
+            header += f"<b>🏆 Top {limit} Most Played:</b>\n\n<blockquote>"
         else:
-            header = f"📊 <b>Statistik Grup</b>\n\nTotal Tracks: {len(stats)}\nTotal Plays: {total_plays}\n\n<b>Top {limit} Lagu:</b>\n\n<blockquote>"
+            header = f"📊 <b>Statistik Grup</b>\n\n"
+            header += f"<blockquote>🎶 <b>Total Tracks:</b> {utils.format_number(len(stats))}\n"
+            header += f"▶️ <b>Total Plays:</b> {utils.format_number(total_plays)}</blockquote>\n\n"
+            header += f"<b>🏆 Top {limit} Lagu:</b>\n\n<blockquote>"
         msg = header + msg + "</blockquote>"
         
     elif what in ["Users", "Chats"]:
-        # Display users/chats
+        # Display users/chats with enhanced formatting
+        from anony.helpers import utils
+        
+        # Calculate max for progress bar
+        max_plays = max(stats.values()) if stats else 1
+        
         for item_id, count in list(stats.items())[:10]:
             try:
                 if what == "Users":
@@ -104,7 +122,11 @@ async def get_stats_callback(_, query: types.CallbackQuery):
                 continue
             
             limit += 1
-            msg += f"💖 <code>{extract}</code> dimainkan {count} kali.\n"
+            rank_icon = utils.get_medal(limit)
+            progress = utils.progress_bar(count, max_plays, 8)
+            
+            msg += f"{rank_icon} <code>{extract}</code>\n"
+            msg += f"   {progress} <b>{utils.format_number(count)} plays</b>\n\n"
         
         if what == "Users":
             header = f"👥 <b>Top {limit} User Teraktif di {app.name}:</b>\n\n<blockquote>"
