@@ -6,7 +6,7 @@
 from random import randint
 from time import time
 
-from pymongo import AsyncMongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 
 from anony import config, logger, userbot
 
@@ -16,7 +16,7 @@ class MongoDB:
         """
         Initialize the MongoDB connection.
         """
-        self.mongo = AsyncMongoClient(config.MONGO_URL, serverSelectionTimeoutMS=12500)
+        self.mongo = AsyncIOMotorClient(config.MONGO_URL, serverSelectionTimeoutMS=12500)
         self.db = self.mongo.Anon
 
         self.admin_list = {}
@@ -453,7 +453,8 @@ class MongoDB:
             {"$limit": limit}
         ]
         results = {}
-        docs = [doc async for doc in self.statsdb.aggregate(pipeline)]
+        cursor = self.statsdb.aggregate(pipeline)
+        docs = await cursor.to_list(length=None)
         for doc in docs:
             try:
                 chat_id = int(doc["_id"])
