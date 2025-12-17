@@ -55,6 +55,8 @@ async def get_stats_callback(_, query: types.CallbackQuery):
         stats = await db.get_top_chats()
     elif what == "Here":
         stats = await db.get_group_stats(chat_id)
+    elif what == "UsersHere":
+        stats = await db.get_group_top_users(chat_id)
     else:
         return
     
@@ -104,7 +106,7 @@ async def get_stats_callback(_, query: types.CallbackQuery):
             header += f"<b>🏆 Top {limit} Lagu:</b>\n\n<blockquote>"
         msg = header + msg + "</blockquote>"
         
-    elif what in ["Users", "Chats"]:
+    elif what in ["Users", "Chats", "UsersHere"]:
         # Display users/chats with enhanced formatting
         from anony.helpers import utils
         
@@ -113,7 +115,7 @@ async def get_stats_callback(_, query: types.CallbackQuery):
         
         for item_id, count in list(stats.items())[:10]:
             try:
-                if what == "Users":
+                if what in ["Users", "UsersHere"]:
                     try:
                         user = await app.get_users(item_id)
                         extract = f"<a href='tg://user?id={item_id}'>{user.first_name}</a>"
@@ -140,6 +142,8 @@ async def get_stats_callback(_, query: types.CallbackQuery):
         
         if what == "Users":
             header = f"👥 <b>Top {limit} User Teraktif di {app.name}:</b>\n\n<blockquote>"
+        elif what == "UsersHere":
+            header = f"👤 <b>Top {limit} Pengguna Teraktif di Grup Ini:</b>\n\n<blockquote>"
         else:
             header = f"📈 <b>Top {limit} Grup Teraktif di {app.name}:</b>\n\n<blockquote>"
         msg = header + msg + "</blockquote>"

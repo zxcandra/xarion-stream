@@ -255,6 +255,38 @@ class MongoDB:
             upsert=True,
         )
 
+    # LOOP MODE METHODS
+    async def get_loop_mode(self, chat_id: int) -> str:
+        """Get loop mode for a chat. Returns 'normal', 'loop_all', or 'loop_one'."""
+        doc = await self.chatsdb.find_one({"_id": chat_id})
+        if doc and "loop_mode" in doc:
+            return doc["loop_mode"]
+        return "normal"
+
+    async def set_loop_mode(self, chat_id: int, mode: str) -> None:
+        """Set loop mode for a chat. Mode should be 'normal', 'loop_all', or 'loop_one'."""
+        await self.chatsdb.update_one(
+            {"_id": chat_id},
+            {"$set": {"loop_mode": mode}},
+            upsert=True,
+        )
+
+    # VIDEO MODE METHODS
+    async def get_video_mode(self, chat_id: int) -> bool:
+        """Get video mode for a chat. Returns True if video enabled, False for audio only."""
+        doc = await self.chatsdb.find_one({"_id": chat_id})
+        if doc and "video_mode" in doc:
+            return doc["video_mode"]
+        return True  # Default: video enabled
+
+    async def set_video_mode(self, chat_id: int, enabled: bool) -> None:
+        """Set video mode for a chat."""
+        await self.chatsdb.update_one(
+            {"_id": chat_id},
+            {"$set": {"video_mode": enabled}},
+            upsert=True,
+        )
+
     # SUDO METHODS
     async def add_sudo(self, user_id: int) -> None:
         await self.cache.update_one(
@@ -372,6 +404,13 @@ class MongoDB:
             },
             upsert=True
         )
+        
+        # Add to group-specific user stats
+        await self.db.group_stats.update_one(
+            {"_id": chat_id},
+            {"$inc": {f"users.{user_id}": 1}},
+            upsert=True
+        )
 
     async def get_global_tops(self, limit: int = 10) -> dict:
         """Get top tracks globally."""
@@ -439,6 +478,17 @@ class MongoDB:
                     "duration": doc.get("duration", "0:00")
                 }
         return results
+
+    async def get_group_top_users(self, chat_id: int, limit: int = 10) -> dict:
+        """Get top users for a specific group."""
+        doc = await self.db.group_stats.find_one({"_id": chat_id})
+        if not doc or "users" not in doc:
+            return {}
+        
+        users = doc["users"]
+        # Sort by count desc and take top limit
+        sorted_users = dict(sorted(users.items(), key=lambda item: item[1], reverse=True)[:limit])
+        return sorted_users
 
     async def increment_queries(self) -> None:
         """Increment total queries counter."""

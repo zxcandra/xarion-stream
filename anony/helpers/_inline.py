@@ -53,12 +53,11 @@ class Inline:
         """Main stats menu buttons."""
         keyboard = [
             [
-                self.ikb(text="🎵 Top Tracks", callback_data="GetStatsNow Tracks"),
-                self.ikb(text="👥 Top Users", callback_data="GetStatsNow Users"),
+                self.ikb(text="🎵 Top Tracks (Here)", callback_data="GetStatsNow Here"),
+                self.ikb(text="� Top Users (Here)", callback_data="GetStatsNow UsersHere"),
             ],
             [
-                self.ikb(text="📢 Top Groups", callback_data="GetStatsNow Chats"),
-                self.ikb(text="📊 Grup Ini", callback_data="GetStatsNow Here"),
+                self.ikb(text="🌍 Top Tracks (Global)", callback_data="GetStatsNow Tracks"),
             ],
             [
                 self.ikb(text="🤖 Bot Info", callback_data="TopOverall s"),
@@ -155,6 +154,50 @@ class Inline:
                         callback_data="settings",
                     ),
                     self.ikb(text="Aktif" if cmd_delete else "Nonaktif", callback_data="settings delete"),
+                ],
+            ]
+        )
+
+    def player_settings_markup(
+        self, loop_mode="normal", admin_only=True, cmd_delete=True, video_mode=True, chat_id=0
+    ) -> types.InlineKeyboardMarkup:
+        """Player settings panel with loop mode and video mode."""
+        # Loop mode button text
+        loop_text = {
+            "normal": "▶️ Normal",
+            "loop_all": "🔁 Loop All",
+            "loop_one": "🔂 Loop One"
+        }.get(loop_mode, "▶️ Normal")
+        
+        return self.ikm(
+            [
+                [
+                    self.ikb(
+                        text="🔁 Loop Mode ➜",
+                        callback_data="player_settings",
+                    ),
+                    self.ikb(text=loop_text, callback_data="player_settings loop"),
+                ],
+                [
+                    self.ikb(
+                        text="📹 Video Mode ➜",
+                        callback_data="player_settings",
+                    ),
+                    self.ikb(text="✅ Aktif" if video_mode else "❌ Nonaktif", callback_data="player_settings video"),
+                ],
+                [
+                    self.ikb(
+                        text="👮 Admin Only ➜",
+                        callback_data="player_settings",
+                    ),
+                    self.ikb(text="✅ Aktif" if admin_only else "❌ Nonaktif", callback_data="player_settings admin"),
+                ],
+                [
+                    self.ikb(
+                        text="🗑 Auto Delete ➜",
+                        callback_data="player_settings",
+                    ),
+                    self.ikb(text="✅ Aktif" if cmd_delete else "❌ Nonaktif", callback_data="player_settings delete"),
                 ],
             ]
         )

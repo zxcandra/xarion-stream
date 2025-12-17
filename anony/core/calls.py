@@ -170,6 +170,21 @@ class TgCall(PyTgCalls):
             except:
                 pass
 
+
+        # Check loop mode
+        loop_mode = await db.get_loop_mode(chat_id)
+        
+        if loop_mode == "loop_one":
+            # Replay current track
+            if old_media:
+                msg = await app.send_message(chat_id=chat_id, text="🔂 Memutar ulang...")
+                await self.play_media(chat_id, msg, old_media)
+                return
+        elif loop_mode == "loop_all":
+            # Add current track to end of queue
+            if old_media:
+                queue.add(chat_id, old_media)
+
         media = queue.get_next(chat_id)
         try:
             if media.message_id:

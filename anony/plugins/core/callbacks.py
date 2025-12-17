@@ -197,3 +197,59 @@ async def _donate_cb(_, query: types.CallbackQuery):
             [[types.InlineKeyboardButton(text="🎁 Dukung Kami", url=config.DONATE_QR_IMAGE)]]
         ),
     )
+
+
+@app.on_callback_query(filters.regex("player_settings") & ~app.bl_users)
+@admin_check
+async def _player_settings_cb(_, query: types.CallbackQuery):
+    """Handle player settings callback."""
+    cmd = query.data.split()
+    if len(cmd) == 1:
+        return await query.answer()
+    await query.answer("Memproses...", show_alert=True)
+
+    chat_id = query.message.chat.id
+    loop_mode = await db.get_loop_mode(chat_id)
+    admin_only = await db.get_play_mode(chat_id)
+    cmd_delete = await db.get_cmd_delete(chat_id)
+    video_mode = await db.get_video_mode(chat_id)
+
+    if cmd[1] == "loop":
+        # Cycle through loop modes
+        modes = ["normal", "loop_all", "loop_one"]
+        current_idx = modes.index(loop_mode) if loop_mode in modes else 0
+        new_mode = modes[(current_idx + 1) % len(modes)]
+        await db.set_loop_mode(chat_id, new_mode)
+        loop_mode = new_mode
+    elif cmd[1] == "video":
+        video_mode = not video_mode
+        await db.set_video_mode(chat_id, video_mode)
+    elif cmd[1] == "admin":
+        admin_only = not admin_only
+        await db.set_play_mode(chat_id, not admin_only)
+    elif cmd[1] == "delete":
+        cmd_delete = not cmd_delete
+        await db.set_cmd_delete(chat_id, cmd_delete)
+    
+    # Format loop mode display
+    loop_text = {
+        "normal": "▶️ Normal",
+        "loop_all": "🔁 Loop All",
+        "loop_one": "🔂 Loop One"
+    }.get(loop_mode, "▶️ Normal")
+    
+    text = f"""⚙️ <b>Player Settings</b>
+
+<blockquote>🔁 <b>Loop Mode:</b> {loop_text}
+📹 <b>Video Mode:</b> {'✅ Aktif' if video_mode else '❌ Nonaktif'}
+👮 <b>Admin Only:</b> {'✅ Aktif' if admin_only else '❌ Nonaktif'}
+🗑 <b>Auto Delete:</b> {'✅ Aktif' if cmd_delete else '❌ Nonaktif'}</blockquote>
+
+<i>Klik tombol di bawah untuk mengubah pengaturan</i>"""
+    
+    await query.edit_message_text(
+        text,
+        parse_mode=enums.ParseMode.HTML,
+        reply_markup=buttons.player_settings_markup(loop_mode, admin_only, cmd_delete, video_mode, chat_id)
+    )
+
