@@ -31,46 +31,20 @@ async def song_command(_, message: types.Message):
         # Auto download - no confirmation needed
         await mystic.edit_text("⏳ Downloading audio...")
         
-        yturl = f"https://www.youtube.com/watch?v={track.id}"
+        # Use existing download method from YouTube class
+        file_path = await yt.download(track.id, video=False)
         
-        import yt_dlp
+        if not file_path:
+            return await mystic.edit_text(
+                "❌ Gagal download lagu.\n\nHubungi @" + config.SUPPORT_CHANNEL
+            )
+        
         import os
-        import asyncio
-        
-        filename = f"downloads/{track.id}.mp3"
-        
-        # Get cookies for YouTube authentication
-        cookie = yt.get_cookies()
-        
-        # Use bestaudio format for standard quality
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "outtmpl": filename,
-            "quiet": True,
-            "no_warnings": True,
-            "cookiefile": cookie,
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "320",  # Highest quality
-            }],
-        }
-        
-        def _download():
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(yturl, download=True)
-                # Get the actual output filename after conversion
-                return ydl.prepare_filename(info).replace('.webm', '.mp3').replace('.m4a', '.mp3')
-        
-        filename = await asyncio.to_thread(_download)
-        
-        if not os.path.exists(filename):
-            raise Exception("File tidak ditemukan setelah download")
         
         # Check file size (Telegram limit: 50MB for bots)
-        file_size = os.path.getsize(filename)
+        file_size = os.path.getsize(file_path)
         if file_size > 50 * 1024 * 1024:
-            os.remove(filename)
+            os.remove(file_path)
             return await mystic.edit_text(
                 "❌ File terlalu besar (>50MB)\n\nCoba lagu dengan durasi lebih pendek."
             )
@@ -83,7 +57,7 @@ async def song_command(_, message: types.Message):
         
         # Send audio
         await message.reply_audio(
-            audio=filename,
+            audio=file_path,
             thumb=track.thumbnail,
             title=track.title,
             performer=track.channel_name,
@@ -94,7 +68,7 @@ async def song_command(_, message: types.Message):
         
         # Cleanup
         try:
-            os.remove(filename)
+            os.remove(file_path)
         except:
             pass
             
