@@ -19,10 +19,48 @@ from anony.plugins import all_modules
 @app.on_message(filters.command(["stats"]) & filters.group & ~app.bl_users)
 async def stats_command(_, m: types.Message):
     """Main stats command with button navigation."""
+    from anony.helpers import utils
+    
     is_sudo = m.from_user.id in app.sudoers
+    chat_id = m.chat.id
+    
+    # Get current group stats
+    group_tracks = await db.get_group_stats(chat_id)
+    group_users = await db.get_group_top_users(chat_id, limit=1)
+    
+    total_tracks = len(group_tracks)
+    total_plays = sum(track["spot"] for track in group_tracks.values())
+    
+    # Get top user
+    top_user_text = ""
+    if group_users:
+        top_user_id = list(group_users.keys())[0]
+        top_user_plays = list(group_users.values())[0]
+        try:
+            user = await app.get_users(top_user_id)
+            top_user_text = f"\n👤 <b>Top User:</b> <a href='tg://user?id={top_user_id}'>{user.first_name}</a> ({utils.format_number(top_user_plays)} plays)"
+        except:
+            top_user_text = f"\n👤 <b>Top User:</b> Deleted User"
+    
+    # Get group ranking
+    all_groups = await db.get_top_chats(limit=1000)
+    group_rank = "N/A"
+    if chat_id in all_groups:
+        rank_position = list(all_groups.keys()).index(chat_id) + 1
+        total_groups = len(all_groups)
+        group_rank = f"#{rank_position} dari {total_groups}"
+    
+    caption = f"""📊 <b>Statistik {m.chat.title}</b>
+
+<blockquote>🏆 <b>Ranking Global:</b> {group_rank}
+🎶 <b>Total Tracks:</b> {utils.format_number(total_tracks)}
+▶️ <b>Total Plays:</b> {utils.format_number(total_plays)}{top_user_text}</blockquote>
+
+<i>Klik tombol di bawah untuk detail lengkap</i>"""
+    
     await m.reply_photo(
         photo=config.STATS_IMG_URL,
-        caption=f"🎵 <b>Selamat Datang di Statistik {app.name}!</b>\n\n<blockquote>Pilih kategori statistik yang ingin dilihat:</blockquote>",
+        caption=caption,
         parse_mode=enums.ParseMode.HTML,
         reply_markup=buttons.stats_buttons({}, is_sudo),
     )
@@ -141,11 +179,11 @@ async def get_stats_callback(_, query: types.CallbackQuery):
             msg += f"   {progress} <b>{utils.format_number(count)} plays</b>\n\n"
         
         if what == "Users":
-            header = f"👥 <b>Top {limit} User Teraktif di {app.name}:</b>\n\n<blockquote>"
+            header = f"🌟 <b>Top {limit} User Teraktif (Global):</b>\n\n<blockquote>"
         elif what == "UsersHere":
-            header = f"👤 <b>Top {limit} Pengguna Teraktif di Grup Ini:</b>\n\n<blockquote>"
+            header = f"� <b>Top {limit} Pengguna Teraktif di Grup Ini:</b>\n\n<blockquote>"
         else:
-            header = f"📈 <b>Top {limit} Grup Teraktif di {app.name}:</b>\n\n<blockquote>"
+            header = f"🌍 <b>Top {limit} Grup Teraktif (Global):</b>\n\n<blockquote>"
         msg = header + msg + "</blockquote>"
     
     med = InputMediaPhoto(media=config.GLOBAL_IMG_URL, caption=msg, parse_mode=enums.ParseMode.HTML)
@@ -173,6 +211,8 @@ async def overall_stats_callback(_, query: types.CallbackQuery):
     
     await query.edit_message_caption("Mengambil statistik bot...", parse_mode=enums.ParseMode.HTML)
     
+    from anony.helpers import utils
+    
     served_chats = len(await db.get_chats())
     served_users = len(await db.get_users())
     total_queries = await db.get_queries()
@@ -181,21 +221,22 @@ async def overall_stats_callback(_, query: types.CallbackQuery):
     mod = len(all_modules)
     assistant = len(userbot.clients)
     
-    text = f"""🎵 <b>Statistik & Info Bot:</b>
+    from anony.helpers import utils
+    text = f"""🤖 <b>Statistik & Info Bot:</b>
 
-<blockquote>🎵 <b>Modul:</b> {mod}
-🎵 <b>Grup:</b> {served_chats}
-🎵 <b>User:</b> {served_users}
-🎵 <b>Diblokir:</b> {blocked}
-🎵 <b>Sudoers:</b> {sudoers}
+<blockquote>📦 <b>Modul:</b> {mod}
+💬 <b>Grup:</b> {served_chats}
+👥 <b>User:</b> {served_users}
+🚫 <b>Diblokir:</b> {blocked}
+⚡ <b>Sudoers:</b> {sudoers}
 
-🎵 <b>Queries:</b> {total_queries}
-🎵 <b>Assistant:</b> {assistant}
-🎵 <b>Auto Leave:</b> {"Ya" if config.AUTO_LEAVE else "Tidak"}
+� <b>Queries:</b> {utils.format_number(total_queries)}
+🤖 <b>Assistant:</b> {assistant}
+🚪 <b>Auto Leave:</b> {"✅ Ya" if config.AUTO_LEAVE else "❌ Tidak"}
 
-🎵 <b>Durasi Limit:</b> {config.DURATION_LIMIT // 60} menit
-🎵 <b>Playlist Limit:</b> {config.PLAYLIST_LIMIT}
-🎵 <b>Queue Limit:</b> {config.QUEUE_LIMIT}</blockquote>"""
+⏱️ <b>Durasi Limit:</b> {config.DURATION_LIMIT // 60} menit
+📋 <b>Playlist Limit:</b> {config.PLAYLIST_LIMIT}
+📝 <b>Queue Limit:</b> {config.QUEUE_LIMIT}</blockquote>"""
     
     med = InputMediaPhoto(media=config.STATS_IMG_URL, caption=text, parse_mode=enums.ParseMode.HTML)
     try:

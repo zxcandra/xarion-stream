@@ -54,10 +54,11 @@ class Inline:
         keyboard = [
             [
                 self.ikb(text="🎵 Top Tracks (Here)", callback_data="GetStatsNow Here"),
-                self.ikb(text="� Top Users (Here)", callback_data="GetStatsNow UsersHere"),
+                self.ikb(text="👤 Top Users (Here)", callback_data="GetStatsNow UsersHere"),
             ],
             [
                 self.ikb(text="🌍 Top Tracks (Global)", callback_data="GetStatsNow Tracks"),
+                self.ikb(text="📢 Top Groups (Global)", callback_data="GetStatsNow Chats"),
             ],
             [
                 self.ikb(text="🤖 Bot Info", callback_data="TopOverall s"),
