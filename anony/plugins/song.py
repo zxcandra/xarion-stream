@@ -59,9 +59,10 @@ async def song_command(_, message: types.Message):
         def _download():
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(yturl, download=True)
-                return info
+                # Get the actual output filename after conversion
+                return ydl.prepare_filename(info).replace('.webm', '.mp3').replace('.m4a', '.mp3')
         
-        info = await asyncio.to_thread(_download)
+        filename = await asyncio.to_thread(_download)
         
         if not os.path.exists(filename):
             raise Exception("File tidak ditemukan setelah download")
