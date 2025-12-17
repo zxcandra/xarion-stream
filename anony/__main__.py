@@ -15,6 +15,11 @@ from anony.plugins import all_modules
 
 async def main():
     await db.connect()
+    
+    # Startup banner
+    logger.info("🎵 ═══════════ DELTA MUSIC BOT v3.0.1 ═══════════ 🎵")
+    logger.info("⚡ Initializing bot components...")
+    
     await app.boot()
     await userbot.boot()
     await anon.boot()
@@ -29,7 +34,10 @@ async def main():
     sudoers = await db.get_sudoers()
     app.sudoers.update(sudoers)
     app.bl_users.update(await db.get_blacklisted())
-    logger.info(f"Loaded {len(app.sudoers)} sudo users.")
+    logger.info(f"👥 Loaded {len(app.sudoers)} sudo users.")
+    
+    logger.info("✅ Bot is ready and running!")
+    logger.info("🎵 ═══════════════════════════════════════════════ 🎵")
 
     await idle()
     await stop()
