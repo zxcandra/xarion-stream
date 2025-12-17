@@ -81,7 +81,7 @@ async def play_hndlr(
         file = await yt.search(query, sent.id, video=video)
         if not file:
             await sent.edit_text(
-                f"❌ <b>Gagal Memproses</b>\n\n<blockquote>Jika masalah berlanjut, laporkan ke <a href={config.SUPPORT_CHAT}>chat dukungan</a></blockquote>",
+                f"❌ <b>Gagal Memproses</b>\n\n<blockquote>Jika masalah berlanjut, laporkan ke <a href='tg://user?id={config.OWNER_ID}'>chat dukungan</a></blockquote>",
                 parse_mode=enums.ParseMode.HTML
             )
             await utils.auto_delete(sent)

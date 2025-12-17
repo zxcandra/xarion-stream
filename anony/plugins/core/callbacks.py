@@ -88,22 +88,7 @@ async def _controls(_, query: types.CallbackQuery):
         status = "Streaming diputar ulang"
         reply = f"{user} memutar ulang streaming."
 
-    elif action == "seek_forward":
-        # Seek forward 10 seconds
-        try:
-            await anon.seek(chat_id, 10)
-            return await query.answer("⏩ +10 detik", show_alert=False)
-        except Exception as e:
-            return await query.answer("❌ Seek tidak tersedia", show_alert=True)
-    
-    elif action == "seek_back":
-        # Seek backward 10 seconds
-        try:
-            await anon.seek(chat_id, -10)
-            return await query.answer("⏪ -10 detik", show_alert=False)
-        except Exception as e:
-            return await query.answer("❌ Seek tidak tersedia", show_alert=True)
-    
+
     elif action == "shuffle":
         # Shuffle the queue
         success = queue.shuffle(chat_id)
@@ -159,7 +144,7 @@ async def _help(_, query: types.CallbackQuery):
 
     # Help text mapping - hardcoded from id.json
     help_texts = {
-        "admins": "<u><b>Perintah admin:</b></u>\n\n/pause: Jeda streaming yang sedang berjalan.\n/resume: Lanjutkan streaming yang dijeda.\n/skip: Lewati streaming saat ini.\n/stop: Hentikan streaming yang sedang berjalan.\n\n/seek [durasi dalam detik]: Lompat ke waktu tertentu dalam streaming.\n/seekback [durasi dalam detik]: Mundur ke waktu tertentu dalam streaming.\n\n/reload: Muat ulang cache admin.",
+        "admins": "<u><b>Perintah admin:</b></u>\n\n/pause: Jeda streaming yang sedang berjalan.\n/resume: Lanjutkan streaming yang dijeda.\n/skip: Lewati streaming saat ini.\n/stop: Hentikan streaming yang sedang berjalan.\n\n/reload: Muat ulang cache admin.",
         "auth": "<u><b>Perintah auth:</b></u>\n<i>Pengguna terotorisasi dapat mengontrol streaming tanpa menjadi admin.</i>\n\n/auth: Tambahkan pengguna ke daftar terotorisasi.\n/unauth: Hapus pengguna dari daftar terotorisasi.",
         "blist": "<u><b>Perintah blacklist:</b></u>\n<i>Chat dan pengguna yang di-blacklist tidak bisa menggunakan bot.</i>\n\n/blacklist [chat_id|user_id]: Tambahkan chat/pengguna ke blacklist.\n/unblacklist [chat_id|user_id]: Hapus chat/pengguna dari blacklist",
         "ping": "<u><b>Perintah ping:</b></u>\n\n/help: Menampilkan menu bantuan bot.\n\n/ping: Cek ping dan penggunaan memori bot.\n\n/start: Mulai bot.\n\n/sudolist: Menampilkan daftar pengguna sudo bot.",

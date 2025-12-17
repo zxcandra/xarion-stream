@@ -45,9 +45,9 @@ class Inline:
             )
             keyboard.append(
                 [
-                    self.ikb(text="⏪ -10s", callback_data=f"controls seek_back {chat_id}"),
+                [
                     self.ikb(text="🔄", callback_data=f"controls replay {chat_id}"),
-                    self.ikb(text="+10s ⏩", callback_data=f"controls seek_forward {chat_id}"),
+                ]
                 ]
             )
         return self.ikm(keyboard)
