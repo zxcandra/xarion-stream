@@ -114,10 +114,20 @@ async def get_stats_callback(_, query: types.CallbackQuery):
         for item_id, count in list(stats.items())[:10]:
             try:
                 if what == "Users":
-                    extract = (await app.get_users(item_id)).first_name
+                    try:
+                        user = await app.get_users(item_id)
+                        extract = f"<a href='tg://user?id={item_id}'>{user.first_name}</a>"
+                    except:
+                        extract = "Deleted User"
                 else:
-                    extract = (await app.get_chat(item_id)).title
-                await asyncio.sleep(0.5)
+                    try:
+                        chat = await app.get_chat(item_id)
+                        if chat.username:
+                            extract = f"<a href='https://t.me/{chat.username}'>{chat.title}</a>"
+                        else:
+                            extract = f"<b>{chat.title}</b>"
+                    except:
+                        extract = "Deleted Group"
             except:
                 continue
             
@@ -125,7 +135,7 @@ async def get_stats_callback(_, query: types.CallbackQuery):
             rank_icon = utils.get_medal(limit)
             progress = utils.progress_bar(count, max_plays, 8)
             
-            msg += f"{rank_icon} <code>{extract}</code>\n"
+            msg += f"{rank_icon} {extract}\n"
             msg += f"   {progress} <b>{utils.format_number(count)} plays</b>\n\n"
         
         if what == "Users":
