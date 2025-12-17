@@ -13,8 +13,12 @@ from anony.helpers import admin_check
 @admin_check
 async def skip(_, message: types.Message):
     if not await db.get_call(message.chat.id):
-        return await message.reply_text("Tidak ada streaming yang sedang diputar.")
+        return await message.reply_text(
+            "❌ <b>Tidak ada streaming</b>\n\n<blockquote>Gunakan /play untuk mulai memutar musik</blockquote>",
+            parse_mode="html"
+        )
     await anon.play_next(message.chat.id)
     await message.reply_text(
-        f"{message.from_user.mention} melewati streaming."
+        f"⏭ <b>Melewati ke Lagu Berikutnya</b>\n\n<blockquote>{message.from_user.mention} melewati lagu</blockquote>",
+        parse_mode="html"
     )

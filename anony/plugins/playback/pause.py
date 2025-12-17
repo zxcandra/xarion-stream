@@ -13,10 +13,17 @@ from anony.helpers import admin_check
 @admin_check
 async def pause(_, message: types.Message):
     if not await db.get_call(message.chat.id):
-        return await message.reply_text("Tidak ada streaming yang sedang diputar.")
+        return await message.reply_text(
+            "❌ <b>Tidak ada streaming</b>\n\n<blockquote>Gunakan /play untuk mulai memutar musik</blockquote>",
+            parse_mode="html"
+        )
     if not await db.playing(message.chat.id):
-        return await message.reply_text("Streaming sudah dijeda!")
+        return await message.reply_text(
+            "⏸ <b>Streaming sudah dijeda</b>\n\n<blockquote>Gunakan /resume untuk melanjutkan</blockquote>",
+            parse_mode="html"
+        )
     await anon.pause(message.chat.id)
     await message.reply_text(
-        f"{message.from_user.mention} menjeda streaming."
+        f"⏸ <b>Streaming Dijeda</b>\n\n<blockquote>{message.from_user.mention} menjeda streaming</blockquote>",
+        parse_mode="html"
     )

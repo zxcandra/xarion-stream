@@ -92,9 +92,15 @@ async def approve_pm(client, message: Message):
     if message.reply_to_message:
         user_id = message.reply_to_message.from_user.id
         APPROVED_USERS.add(user_id)
-        await message.reply_text(f"✅ Approved {message.reply_to_message.from_user.mention} - Auto clear disabled.")
+        await message.reply_text(
+            f"✅ <b>Approved!</b>\n\n<blockquote>User {message.reply_to_message.from_user.mention} telah diizinkan untuk PM.</blockquote>",
+            parse_mode="html"
+        )
     else:
-        await message.reply_text("Reply to a user's message to approve them.")
+        await message.reply_text(
+            "ℹ️ <b>Penggunaan:</b>\n\n<blockquote>Reply ke pesan user untuk approve</blockquote>",
+            parse_mode="html"
+        )
 
 
 # Disapprove command (for owner only)
@@ -106,9 +112,15 @@ async def disapprove_pm(client, message: Message):
     if message.reply_to_message:
         user_id = message.reply_to_message.from_user.id
         APPROVED_USERS.discard(user_id)
-        await message.reply_text(f"❌ Disapproved {message.reply_to_message.from_user.mention} - Auto clear enabled.")
+        await message.reply_text(
+            f"❌ <b>Disapproved!</b>\n\n<blockquote>User {message.reply_to_message.from_user.mention} kembali ke mode auto-clear.</blockquote>",
+            parse_mode="html"
+        )
     else:
-        await message.reply_text("Reply to a user's message to disapprove them.")
+        await message.reply_text(
+            "ℹ️ <b>Penggunaan:</b>\n\n<blockquote>Reply ke pesan user untuk disapprove</blockquote>",
+            parse_mode="html"
+        )
 
 
 # Set custom warning message
@@ -121,16 +133,18 @@ async def set_pm_warn(client, message: Message):
     
     if len(message.command) < 2:
         await message.reply_text(
-            "**Usage:** `.setpmwarn <message>`\n\n"
-            "**Example:**\n"
-            "`.setpmwarn ⚠️ Don't spam! Auto-delete in 3s.`"
+            "ℹ️ <b>Set PM Warning</b>\n\n<blockquote><code>.setpmwarn [pesan]</code>\n\nContoh: <code>.setpmwarn ⚠️ Jangan spam!</code></blockquote>",
+            parse_mode="html"
         )
         return
     
     custom_msg = message.text.split(maxsplit=1)[1]
     CUSTOM_PM_WARN = custom_msg
     await db.set_pm_warn_msg(custom_msg)
-    await message.reply_text(f"✅ Custom warning set!\n\n**Preview:**\n{custom_msg}")
+    await message.reply_text(
+        f"✅ <b>Custom Warning Set!</b>\n\n<blockquote><b>Preview:</b>\n{custom_msg}</blockquote>",
+        parse_mode="html"
+    )
 
 
 # Reset to default messages
@@ -143,7 +157,10 @@ async def reset_pm_messages(client, message: Message):
     
     CUSTOM_PM_WARN = None
     await db.clear_pm_messages()
-    await message.reply_text("✅ PM message reset to default!")
+    await message.reply_text(
+        "✅ <b>Reset Berhasil!</b>\n\n<blockquote>Pesan PM warning kembali ke default.</blockquote>",
+        parse_mode="html"
+    )
 
 
 # PMPermit help command
@@ -168,4 +185,18 @@ async def pm_auto_help(client, message: Message):
         "• `.resetpm` - Reset ke pesan default"
     )
     
-    await message.reply_text(help_text)
+    new_help = (
+        "🧹 <b>Auto Clear PM (Tanpa Blokir)</b>\n\n"
+        "<blockquote><b>Cara Kerja:</b>\n"
+        "• User PM → Bot kirim peringatan\n"
+        "• Tunggu 3 detik\n"
+        "• Hapus pesan user + peringatan\n"
+        "• TIDAK ada blokir</blockquote>\n\n"
+        "<b>Daftar Perintah:</b>\n"
+        "• <code>.approve</code> - Whitelist user\n"
+        "• <code>.disapprove</code> - Hapus whitelist\n"
+        "• <code>.setpmwarn</code> - Custom pesan\n"
+        "• <code>.resetpm</code> - Reset default"
+    )
+    
+    await message.reply_text(new_help, parse_mode="html")

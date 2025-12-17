@@ -20,5 +20,5 @@ async def ping(_, message: types.Message):
     end = asyncio.get_event_loop().time()
     uptime = int(end - boot)
     await m.edit_caption(
-        f"🏓 **Pong!**\n\n💬 **Latency:** `{(end - start) * 1000:.3f}ms`\n📡 **Ping:** `{await anon.ping()}ms`\n⏱️ **Uptime:** `{uptime // 3600}h {(uptime % 3600) // 60}m`"
+        f"🏓 <b>Pong!</b>\n\n<blockquote>💬 <b>Latency:</b> <code>{(end - start) * 1000:.3f}ms</code>\n📡 <b>Ping:</b> <code>{await anon.ping()}ms</code>\n⏱️ <b>Uptime:</b> <code>{uptime // 3600}h {(uptime % 3600) // 60}m</code></blockquote>"
     )

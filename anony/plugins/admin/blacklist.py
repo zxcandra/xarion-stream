@@ -14,26 +14,43 @@ async def blacklist_cmd(_, message: types.Message):
     
     if len(message.command) < 2:
         return await message.reply_text(
-            "<b>Penggunaan:</b>\n\n/blacklist [chat_id|user_id]"
+        return await message.reply_text(
+            "ℹ️ <b>Penggunaan:</b>\n\n<blockquote>/blacklist [chat_id|user_id]</blockquote>",
+            parse_mode="html"
         )
     
     try:
         target_id = int(message.command[1])
     except ValueError:
-        return await message.reply_text("Hanya chat ID dan user ID yang didukung.")
+        return await message.reply_text(
+            "❌ <b>ID Tidak Valid</b>\n\n<blockquote>Hanya chat ID dan user ID yang didukung</blockquote>",
+            parse_mode="html"
+        )
     
     is_blacklist = message.command[0] == "blacklist"
     
     if is_blacklist:
         if target_id in app.bl_users or target_id in db.blacklisted:
-            return await message.reply_text("Chat ini sudah ada di daftar hitam.")
+            return await message.reply_text(
+                "⚠️ <b>Sudah Blacklist</b>\n\n<blockquote>Target sudah ada di daftar hitam</blockquote>",
+                parse_mode="html"
+            )
         await db.add_blacklist(target_id)
         app.bl_users.append(target_id)
-        await message.reply_text("Chat ini telah ditambahkan ke daftar hitam.")
+        await message.reply_text(
+            "🚫 <b>Blacklist Berhasil</b>\n\n<blockquote>Target telah ditambahkan ke daftar hitam</blockquote>",
+            parse_mode="html"
+        )
     else:
         if target_id not in app.bl_users and target_id not in db.blacklisted:
-            return await message.reply_text("Chat ini tidak ada di daftar hitam.")
+            return await message.reply_text(
+                "⚠️ <b>Tidak Blacklist</b>\n\n<blockquote>Target tidak ada di daftar hitam</blockquote>",
+                parse_mode="html"
+            )
         await db.del_blacklist(target_id)
         if target_id in app.bl_users:
             app.bl_users.remove(target_id)
-        await message.reply_text("Chat ini telah dihapus dari daftar hitam.")
+        await message.reply_text(
+            "✅ <b>Unblacklist Berhasil</b>\n\n<blockquote>Target telah dihapus dari daftar hitam</blockquote>",
+            parse_mode="html"
+        )

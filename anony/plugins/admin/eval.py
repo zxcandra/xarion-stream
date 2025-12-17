@@ -17,7 +17,10 @@ async def eval_cmd(_, message: types.Message):
     """Execute Python code (Sudo only)."""
     
     if len(message.command) < 2 and not message.reply_to_message:
-        return await message.reply_text("**Penggunaan:**\n\n/eval [code]")
+        return await message.reply_text(
+            "ℹ️ <b>Penggunaan Eval</b>\n\n<blockquote><code>/eval [code]</code></blockquote>",
+            parse_mode="html"
+        )
     
     code = message.text.split(None, 1)[1] if len(message.command) > 1 else message.reply_to_message.text
     
@@ -35,4 +38,7 @@ async def eval_cmd(_, message: types.Message):
         sys.stdout = old_stdout
         sys.stderr = old_stderr
     
-    await message.reply_text(f"**Output:**\n\n```\n{output}\n```")
+    await message.reply_text(
+        f"💻 <b>Eval Output</b>\n\n<pre>{output}</pre>",
+        parse_mode="html"
+    )

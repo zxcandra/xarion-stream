@@ -19,17 +19,23 @@ async def _queue(_, message: types.Message):
         await utils.auto_delete(message)
     
     if not await db.get_call(message.chat.id):
-        sent = await message.reply_text("Tidak ada streaming yang sedang diputar.")
+        sent = await message.reply_text(
+            "❌ <b>Tidak ada streaming</b>\n\n<blockquote>Gunakan /play untuk mulai memutar musik</blockquote>",
+            parse_mode="html"
+        )
         await utils.auto_delete(sent)
         return
     
-    sent = await message.reply_text("Mengambil antrian...")
+    sent = await message.reply_text("🔄 <b>Mengambil Antrian...</b>", parse_mode="html")
     
     playing = await db.playing(message.chat.id)
     items = queue.get_queue(message.chat.id)
     
     if not items:
-        await sent.edit_text("Antrian kosong.")
+        await sent.edit_text(
+            "❌ <b>Antrian Kosong</b>\n\n<blockquote>Tidak ada lagu yang sedang menunggu</blockquote>",
+            parse_mode="html"
+        )
         await utils.auto_delete(sent)
         return
     

@@ -13,10 +13,17 @@ from anony.helpers import admin_check
 @admin_check
 async def resume(_, message: types.Message):
     if not await db.get_call(message.chat.id):
-        return await message.reply_text("Tidak ada streaming yang sedang diputar.")
+        return await message.reply_text(
+            "❌ <b>Tidak ada streaming</b>\n\n<blockquote>Gunakan /play untuk mulai memutar musik</blockquote>",
+            parse_mode="html"
+        )
     if await db.playing(message.chat.id):
-        return await message.reply_text("Streaming tidak dijeda!")
+        return await message.reply_text(
+            "▶️ <b>Streaming sedang berjalan</b>\n\n<blockquote>Gunakan /pause untuk menjeda</blockquote>",
+            parse_mode="html"
+        )
     await anon.resume(message.chat.id)
     await message.reply_text(
-        f"{message.from_user.mention} melanjutkan streaming."
+        f"▶️ <b>Streaming Dilanjutkan</b>\n\n<blockquote>{message.from_user.mention} melanjutkan streaming</blockquote>",
+        parse_mode="html"
     )

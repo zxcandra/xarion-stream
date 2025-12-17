@@ -13,8 +13,12 @@ from anony.helpers import admin_check
 @admin_check
 async def stop(_, message: types.Message):
     if not await db.get_call(message.chat.id):
-        return await message.reply_text("Tidak ada streaming yang sedang diputar.")
+        return await message.reply_text(
+            "❌ <b>Tidak ada streaming</b>\n\n<blockquote>Gunakan /play untuk mulai memutar musik</blockquote>",
+            parse_mode="html"
+        )
     await anon.stop(message.chat.id)
     await message.reply_text(
-        f"{message.from_user.mention} menghentikan streaming."
+        f"⏹ <b>Streaming Dihentikan</b>\n\n<blockquote>{message.from_user.mention} menghentikan streaming</blockquote>",
+        parse_mode="html"
     )

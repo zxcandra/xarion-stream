@@ -14,22 +14,27 @@ async def song_command(_, message: types.Message):
     
     if len(message.command) < 2:
         return await message.reply_text(
-            "<b>Penggunaan:</b>\n\n<code>/song charlie puth attention</code>\natau\n<code>/song https://youtu.be/VIDEO_ID</code>"
+            "ℹ️ <b>Penggunaan:</b>\n\n<blockquote><code>/song [judul lagu]</code>\nAtau: <code>/song [youtube url]</code></blockquote>",
+            parse_mode="html"
         )
     
     query = message.text.split(None, 1)[1]
-    mystic = await message.reply_text("🔍 Mencari lagu...")
+    mystic = await message.reply_text("🔎 <b>Mencari Lagu...</b>", parse_mode="html")
     
     try:
         # Search for the song
         track = await yt.search(query, mystic.id)
         if not track:
             return await mystic.edit_text(
-                "❌ Gagal menemukan lagu.\n\nCoba dengan kata kunci yang berbeda."
+                "❌ <b>Lagu Tidak Ditemukan</b>\n\n<blockquote>Coba gunakan kata kunci atau link yang berbeda</blockquote>",
+                parse_mode="html"
             )
         
         # Auto download - no confirmation needed
-        await mystic.edit_text("⏳ Downloading audio...")
+        await mystic.edit_text(
+            "⬇️ <b>Mengunduh Audio...</b>\n\n<blockquote>Mohon tunggu sebentar...</blockquote>",
+            parse_mode="html"
+        )
         
         import yt_dlp
         import os
@@ -74,7 +79,8 @@ async def song_command(_, message: types.Message):
         
         if not os.path.exists(file_path):
             return await mystic.edit_text(
-                "❌ Gagal download lagu.\n\nHubungi @" + config.SUPPORT_CHANNEL
+                f"❌ <b>Gagal Mengunduh</b>\n\n<blockquote>Silakan lapor ke <a href='{config.SUPPORT_CHANNEL}'>chat dukungan</a></blockquote>",
+                parse_mode="html"
             )
         
         import os
@@ -84,10 +90,11 @@ async def song_command(_, message: types.Message):
         if file_size > 50 * 1024 * 1024:
             os.remove(file_path)
             return await mystic.edit_text(
-                "❌ File terlalu besar (>50MB)\n\nCoba lagu dengan durasi lebih pendek."
+                "❌ <b>File Terlalu Besar</b>\n\n<blockquote>Ukuran file >50MB. Coba lagu dengan durasi lebih pendek.</blockquote>",
+                parse_mode="html"
             )
         
-        await mystic.edit_text("📤 Uploading audio...")
+        await mystic.edit_text("⬆️ <b>Mengunggah Audio...</b>", parse_mode="html")
         await app.send_chat_action(
             chat_id=message.chat.id,
             action=enums.ChatAction.UPLOAD_AUDIO
@@ -145,5 +152,5 @@ async def song_command(_, message: types.Message):
             pass
             
     except Exception as e:
-        await mystic.edit_text(f"❌ Error: {str(e)}")
+        await mystic.edit_text(f"❌ <b>Terjadi Kesalahan</b>\n\n<blockquote>{str(e)}</blockquote>", parse_mode="html")
 

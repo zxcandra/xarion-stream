@@ -15,10 +15,11 @@ from anony import app
 @app.on_message(filters.command(["restart", "reboot"]) & filters.user(app.owner))
 async def restart_bot(_, message: types.Message):
     """Restart the bot."""
-    await message.reply_text("Merestart...")
+    await message.reply_text("🔄 <b>Merestart Bot...</b>", parse_mode="html")
     await asyncio.sleep(1)
     await message.reply_text(
-        "Restart sedang berlangsung. Jangan khawatir, hanya butuh beberapa detik..."
+        "⏳ <b>Sedang Proses...</b>\n\n<blockquote>Jangan khawatir, hanya butuh beberapa detik...</blockquote>",
+        parse_mode="html"
     )
     os.execl(sys.executable, sys.executable, "-m", "anony")
 
@@ -26,9 +27,12 @@ async def restart_bot(_, message: types.Message):
 @app.on_message(filters.command(["update"]) & filters.user(app.owner))
 async def update_bot(_, message: types.Message):
     """Update and restart bot."""
-    sent = await message.reply_text("Checking for updates...")
+    sent = await message.reply_text("🔄 <b>Checking Updates...</b>", parse_mode="html")
     os.system("git pull")
-    await sent.edit_text("Updated! Restarting...")
+    await sent.edit_text(
+        "✅ <b>Updated!</b>\n\n<blockquote>Restarting system...</blockquote>",
+        parse_mode="html"
+    )
     await asyncio.sleep(1)
     os.execl(sys.executable, sys.executable, "-m", "anony")
 
@@ -37,5 +41,8 @@ async def update_bot(_, message: types.Message):
 async def get_logs(_, message: types.Message):
     """Get bot logs."""
     if not os.path.exists("log.txt"):
-        return await message.reply_text("Log file tidak ditemukan.")
-    await message.reply_document("log.txt", caption="📄 **Bot Logs**")
+        return await message.reply_text(
+            "❌ <b>Log Tidak Ditemukan</b>\n\n<blockquote>File log belum tersedia</blockquote>",
+            parse_mode="html"
+        )
+    await message.reply_document("log.txt", caption="📄 <b>Bot Logs</b>", parse_mode="html")

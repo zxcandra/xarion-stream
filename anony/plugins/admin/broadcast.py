@@ -15,12 +15,18 @@ async def broadcast_message(_, message: types.Message):
     """Broadcast message to all chats/users."""
     
     if not message.reply_to_message:
-        return await message.reply_text("Reply ke pesan yang ingin di-broadcast.")
+        return await message.reply_text(
+            "ℹ️ <b>Penggunaan Broadcast</b>\n\n<blockquote>Reply ke pesan yang ingin di-broadcast</blockquote>",
+            parse_mode="html"
+        )
     
     mode = "chats" if message.command[0] == "gcast" else "users"
     targets = await db.get_chats() if mode == "chats" else await db.get_users()
     
-    sent = await message.reply_text(f"Broadcasting ke {len(targets)} {mode}...")
+    sent = await message.reply_text(
+        f"📡 <b>Broadcasting...</b>\n\n<blockquote>Target: {len(targets)} {mode}</blockquote>",
+        parse_mode="html"
+    )
     
     success = 0
     failed = 0
@@ -34,11 +40,16 @@ async def broadcast_message(_, message: types.Message):
             failed += 1
     
     await sent.edit_text(
-        f"**Broadcast Selesai**\n\n✅ Berhasil: {success}\n❌ Gagal: {failed}"
+    await sent.edit_text(
+        f"✅ <b>Broadcast Selesai</b>\n\n<blockquote><b>Sukses:</b> {success}\n<b>Gagal:</b> {failed}</blockquote>",
+        parse_mode="html"
     )
 
 
 @app.on_message(filters.command(["cancelcast"]) & filters.user(app.owner))
 async def cancel_broadcast(_, message: types.Message):
     """Cancel ongoing broadcast."""
-    await message.reply_text("Broadcast dibatalkan.")
+    await message.reply_text(
+        "🚫 <b>Broadcast Dibatalkan</b>\n\n<blockquote>Proses broadcast telah dihentikan</blockquote>",
+        parse_mode="html"
+    )

@@ -38,7 +38,7 @@ async def play_hndlr(
     if config.AUTO_DELETE_COMMANDS:
         await utils.auto_delete(m)
     
-    sent = await m.reply_text("Mencari...")
+    sent = await m.reply_text("🔎 <b>Mencari...</b>", parse_mode="html")
     file = None
     mention = m.from_user.mention
     media = tg.get_media(m.reply_to_message) if m.reply_to_message else None
@@ -46,13 +46,19 @@ async def play_hndlr(
 
     if url:
         if "playlist" in url:
-            await sent.edit_text("Mengambil playlist...\n\nMohon tunggu.")
+            await sent.edit_text(
+                "🔄 <b>Mengambil Playlist...</b>\n\n<blockquote>Mohon tunggu sebentar...</blockquote>",
+                parse_mode="html"
+            )
             tracks = await yt.playlist(
                 config.PLAYLIST_LIMIT, mention, url, video
             )
 
             if not tracks:
-                await sent.edit_text("Terjadi kesalahan saat mengambil playlist.")
+                await sent.edit_text(
+                    "❌ <b>Gagal Mengambil Playlist</b>\n\n<blockquote>Pastikan link playlist valid dan tidak private</blockquote>",
+                    parse_mode="html"
+                )
                 await utils.auto_delete(sent)
                 return
 
@@ -64,7 +70,8 @@ async def play_hndlr(
 
         if not file:
             await sent.edit_text(
-                f"Gagal memproses permintaan.\n\nJika masalah berlanjut, laporkan ke <a href={config.SUPPORT_CHANNEL}>chat dukungan</a>."
+                f"❌ <b>Gagal Memproses</b>\n\n<blockquote>Jika masalah berlanjut, laporkan ke <a href={config.SUPPORT_CHANNEL}>chat dukungan</a></blockquote>",
+                parse_mode="html"
             )
             await utils.auto_delete(sent)
             return
@@ -74,7 +81,8 @@ async def play_hndlr(
         file = await yt.search(query, sent.id, video=video)
         if not file:
             await sent.edit_text(
-                f"Gagal memproses permintaan.\n\nJika masalah berlanjut, laporkan ke <a href={config.SUPPORT_CHAT}>chat dukungan</a>."
+                f"❌ <b>Gagal Memproses</b>\n\n<blockquote>Jika masalah berlanjut, laporkan ke <a href={config.SUPPORT_CHAT}>chat dukungan</a></blockquote>",
+                parse_mode="html"
             )
             await utils.auto_delete(sent)
             return
@@ -84,13 +92,17 @@ async def play_hndlr(
         file = await tg.download(m.reply_to_message, sent)
 
     if not file:
-        await sent.edit_text("<b>Penggunaan:</b>\n\n<code>/play attention</code>")
+        await sent.edit_text(
+            "❌ <b>Lagu Tidak Ditemukan</b>\n\n<blockquote><b>Penggunaan:</b>\n<code>/play attention</code>\n<code>/play [youtube url]</code></blockquote>",
+            parse_mode="html"
+        )
         await utils.auto_delete(sent)
         return
 
     if file.duration_sec > config.DURATION_LIMIT:
         await sent.edit_text(
-            f"Streaming lebih dari {config.DURATION_LIMIT // 60} menit tidak diperbolehkan."
+            f"❌ <b>Durasi Terlalu Panjang</b>\n\n<blockquote>Maksimal durasi yang diperbolehkan adalah {config.DURATION_LIMIT // 60} menit</blockquote>",
+            parse_mode="html"
         )
         await utils.auto_delete(sent)
         return
@@ -106,10 +118,11 @@ async def play_hndlr(
 
         if await db.get_call(m.chat.id):
             await sent.edit_text(
-                f"<u><b>Ditambahkan ke antrian: {position}</b></u>\n\n<b>Judul:</b> <a href={file.url}>{file.title}</a>\n\n<b>Durasi:</b> {file.duration} menit\n<b>Diminta oleh:</b> {m.from_user.mention}",
+                f"✅ <b>Ditambahkan ke Antrian: #{position}</b>\n\n<blockquote><b>Judul:</b> <a href={file.url}>{file.title}</a>\n<b>Durasi:</b> {file.duration} menit\n<b>Diminta oleh:</b> {m.from_user.mention}</blockquote>",
                 reply_markup=buttons.play_queued(
                     m.chat.id, file.id, "Putar Sekarang"
                 ),
+                parse_mode="html"
             )
             await utils.auto_delete(sent)
             if tracks:
@@ -126,7 +139,7 @@ async def play_hndlr(
         if Path(fname).exists():
             file.file_path = fname
         else:
-            await sent.edit_text("Mengunduh...")
+            await sent.edit_text("⬇️ <b>Mengunduh audio...</b>", parse_mode="html")
             file.file_path = await yt.download(file.id, video=video)
 
     await anon.play_media(chat_id=m.chat.id, message=sent, media=file)

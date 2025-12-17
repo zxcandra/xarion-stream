@@ -28,7 +28,10 @@ async def _help(_, m: types.Message):
 @app.on_message(filters.command(["start"]))
 async def start(_, message: types.Message):
     if message.from_user.id in app.bl_users and message.from_user.id not in db.notified:
-        return await message.reply_text("❌ Anda telah diblokir dari menggunakan bot ini.")
+        return await message.reply_text(
+            "❌ <b>Akses Ditolak</b>\n\n<blockquote>Maaf, Anda tidak dapat menggunakan bot ini.</blockquote>",
+            parse_mode=enums.ParseMode.HTML
+        )
 
     if len(message.command) > 1 and message.command[1] == "help":
         return await _help(_, message)
@@ -67,7 +70,7 @@ async def settings(_, message: types.Message):
     cmd_delete = await db.get_cmd_delete(message.chat.id)
     
     await message.reply_text(
-        text=f"<u><b>Pengaturan {message.chat.title}</b></u>\n\nKlik tombol di bawah untuk mengubah pengaturan chat ini.",
+        text=f"⚙️ <b>Pengaturan {message.chat.title}</b>\n\n<blockquote>Klik tombol di bawah untuk mengubah pengaturan chat ini.</blockquote>",
         parse_mode=enums.ParseMode.HTML,
         reply_markup=buttons.settings_markup(
             {}, admin_only, cmd_delete, message.chat.id
