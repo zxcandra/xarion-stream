@@ -11,8 +11,14 @@ from anony.helpers import buttons, utils
 
 @app.on_message(filters.command(["help"]) & filters.private & ~app.bl_users)
 async def _help(_, m: types.Message):
+    help_text = f"📚 <b>Menu Bantuan {app.name}</b>\n\n"
+    help_text += "<blockquote>"
+    help_text += "Klik kategori di bawah untuk melihat perintah yang tersedia.\n\n"
+    help_text += "💡 <b>Tips:</b> Semua perintah dimulai dengan / (garis miring)"
+    help_text += "</blockquote>"
+    
     await m.reply_text(
-        text="<b>Klik tombol di bawah untuk mendapatkan informasi tentang perintah saya.</b>\n\n<i><b>Catatan:</b> Semua perintah dapat digunakan dengan /</i>",
+        text=help_text,
         parse_mode=enums.ParseMode.HTML,
         reply_markup=buttons.help_markup({}),
         quote=True,

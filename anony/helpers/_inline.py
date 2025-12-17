@@ -91,15 +91,15 @@ class Inline:
         else:
             # Manual mapping with hardcoded Indonesian labels
             help_map = [
-                ("admins", "help_0", "Admin"),
-                ("auth", "help_1", "Auth"),
-                ("blist", "help_2", "Blacklist"),
+                ("admins", "help_0", "👮 Admin"),
+                ("auth", "help_1", "🔐 Auth"),
+                ("blist", "help_2", "🚫 Blacklist"),
                 # help_3 (Bahasa) - SKIPPED
-                ("ping", "help_4", "Ping"),
-                ("play", "help_5", "Play"),
-                ("queue", "help_6", "Queue"),
-                ("stats", "help_7", "Stats"),
-                ("sudo", "help_8", "Sudoers"),
+                ("ping", "help_4", "🏓 Ping"),
+                ("play", "help_5", "▶️ Play"),
+                ("queue", "help_6", "📝 Queue"),
+                ("stats", "help_7", "📊 Stats"),
+                ("sudo", "help_8", "⚙️ Sudoers"),
             ]
             buttons = [
                 self.ikb(text=label, callback_data=f"help {cb}")
