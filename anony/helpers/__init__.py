@@ -3,24 +3,39 @@
 # This file is part of AnonXMusic
 
 """
-Helpers module - Only import modules that don't depend on anony package
+Helpers module - exports utilities for other modules
+All modules here use lazy imports internally to avoid circular imports
 """
 
-# Import Queue class (no anony dependency)
+# These modules don't have top-level anony imports (safe to import)
+from anony.helpers._dataclass import Media, Track
 from anony.helpers._queue import Queue
 
-# Import dataclass (no anony dependency usually)
-from anony.helpers._dataclass import *
+# Import classes/functions that use lazy imports internally
+from anony.helpers._admins import admin_check, can_manage_vc, is_admin, reload_admins
+from anony.helpers._inline import Inline
+from anony.helpers._utilities import Utilities
 
-# Note: Other helpers are imported directly where needed to avoid circular imports
-# - _cleanup: from anony.helpers._cleanup import cleanup
-# - _lyrics: from anony.helpers._lyrics import lyrics_searcher  
-# - _decorators: import from anony.helpers._decorators
-# - _graceful: import from anony.helpers._graceful
-# - _admins: import from anony.helpers._admins
-# - _inline: import from anony.helpers._inline
-# - _play: import from anony.helpers._play
+# Create singleton instances
+buttons = Inline()
+utils = Utilities()
 
+# Export all
 __all__ = [
+    # Dataclasses
+    "Media",
+    "Track",
+    # Queue
     "Queue",
+    # Admin utilities
+    "admin_check",
+    "can_manage_vc", 
+    "is_admin",
+    "reload_admins",
+    # Instances
+    "buttons",
+    "utils",
+    # Classes
+    "Inline",
+    "Utilities",
 ]

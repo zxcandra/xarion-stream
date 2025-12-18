@@ -5,7 +5,7 @@
 
 from pyrogram import types
 
-from anony import app, config
+# Note: 'app' and 'config' are imported lazily where needed to avoid circular imports
 
 
 class Inline:
@@ -114,6 +114,7 @@ class Inline:
         return self.ikm(rows)
 
     def ping_markup(self, text: str) -> types.InlineKeyboardMarkup:
+        from anony import config
         return self.ikm([[self.ikb(text=text, url=config.SUPPORT_CHANNEL)]])
 
     def play_queued(
@@ -206,6 +207,7 @@ class Inline:
     def start_key(
         self, lang=None, private: bool = False
     ) -> types.InlineKeyboardMarkup:
+        from anony import app, config
         rows = [
             [
                 self.ikb(
