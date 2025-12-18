@@ -2,11 +2,13 @@
 # Licensed under the MIT License.
 # This file is part of AnonXMusic
 
+import logging
 from collections import defaultdict
 from functools import wraps
 from time import time
 
-from anony import logger
+# Use direct logging to avoid circular import
+logger = logging.getLogger(__name__)
 
 
 class RateLimiter:

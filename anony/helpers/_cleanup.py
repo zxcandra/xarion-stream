@@ -3,10 +3,12 @@
 # This file is part of AnonXMusic
 
 import asyncio
+import logging
 from pathlib import Path
 from time import time
 
-from anony import config, logger
+# Use direct logging to avoid circular import
+logger = logging.getLogger(__name__)
 
 
 class FileCleanup:

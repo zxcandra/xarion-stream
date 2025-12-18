@@ -2,12 +2,14 @@
 # Licensed under the MIT License.
 # This file is part of AnonXMusic
 
+import logging
 import re
 from typing import Optional
 
 import aiohttp
 
-from anony import logger
+# Use direct logging to avoid circular import
+logger = logging.getLogger(__name__)
 
 
 class LyricsSearcher:
