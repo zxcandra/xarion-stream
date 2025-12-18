@@ -67,7 +67,7 @@ async def lyrics_handler(_, message: types.Message):
 
 @app.on_message(
     filters.command(["cache", "storage"]) 
-    & filters.user(app.sudo_users)
+    & filters.user(app.sudoers)
 )
 @safe_execute(send_error=True)
 async def cache_stats_handler(_, message: types.Message):
