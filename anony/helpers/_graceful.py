@@ -7,6 +7,7 @@ Graceful Shutdown Handler untuk handle FloodWait dan restart yang aman
 """
 
 import asyncio
+import logging
 import signal
 import sys
 from datetime import datetime
@@ -14,7 +15,8 @@ from typing import Optional
 
 from pyrogram.errors import FloodWait
 
-from anony import logger
+# Get logger at module level (avoid importing from anony)
+logger = logging.getLogger(__name__)
 
 
 class GracefulShutdown:
