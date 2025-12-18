@@ -16,6 +16,10 @@ from anony.plugins import all_modules
 async def main():
     await db.connect()
     
+    # Setup graceful shutdown handlers
+    from anony.helpers._graceful import graceful_handler
+    graceful_handler.setup_signal_handlers()
+    
     # Startup banner
     logger.info("🎵 ═══════════ DELTA MUSIC BOT v3.0.1 ═══════════ 🎵")
     logger.info("⚡ Initializing bot components...")

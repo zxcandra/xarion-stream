@@ -50,7 +50,7 @@ from anony.core.youtube import YouTube
 tg = Telegram()
 yt = YouTube()
 
-from anony.helpers import Queue
+from anony.helpers._queue import Queue
 queue = Queue()
 
 from anony.core.calls import TgCall
