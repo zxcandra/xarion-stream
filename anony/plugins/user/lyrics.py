@@ -4,9 +4,19 @@
 
 from pyrogram import filters, types
 
-from anony import app, queue
+from anony import app, config, queue
 from anony.helpers._decorators import command_limiter, require_rate_limit, safe_execute
 from anony.helpers._lyrics import lyrics_searcher
+
+
+# Custom sudo filter that checks at runtime
+def sudo_filter(_, __, message):
+    """Runtime check for sudo users"""
+    if not message.from_user:
+        return False
+    return message.from_user.id in app.sudoers or message.from_user.id == config.OWNER_ID
+
+sudo_users_filter = filters.create(sudo_filter)
 
 
 @app.on_message(
@@ -67,7 +77,7 @@ async def lyrics_handler(_, message: types.Message):
 
 @app.on_message(
     filters.command(["cache", "storage"]) 
-    & filters.user(app.sudoers)
+    & sudo_users_filter
 )
 @safe_execute(send_error=True)
 async def cache_stats_handler(_, message: types.Message):

@@ -16,7 +16,17 @@ from anony import app, config, logger
 from anony.helpers._graceful import graceful_handler, safe_restart, with_flood_wait_handler
 
 
-@app.on_message(filters.command(["restart", "reboot"]) & filters.user(app.sudoers))
+# Custom sudo filter that checks at runtime
+def sudo_filter(_, __, message):
+    """Runtime check for sudo users"""
+    if not message.from_user:
+        return False
+    return message.from_user.id in app.sudoers or message.from_user.id == config.OWNER_ID
+
+sudo_users_filter = filters.create(sudo_filter)
+
+
+@app.on_message(filters.command(["restart", "reboot"]) & sudo_users_filter)
 async def restart_handler(_, message: types.Message):
     """
     Restart bot dengan aman (Admin only)
@@ -72,7 +82,7 @@ async def shutdown_handler(_, message: types.Message):
     await graceful_handler.shutdown()
 
 
-@app.on_message(filters.command(["status", "health"]) & filters.user(app.sudoers))
+@app.on_message(filters.command(["status", "health"]) & sudo_users_filter)
 @with_flood_wait_handler(max_retries=2)
 async def status_handler(_, message: types.Message):
     """

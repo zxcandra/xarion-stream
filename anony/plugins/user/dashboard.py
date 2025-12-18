@@ -11,7 +11,17 @@ from pyrogram import filters, types
 from anony import app, config, logger
 
 
-@app.on_message(filters.command(["dashboard"]) & filters.user(app.sudoers))
+# Custom sudo filter that checks at runtime
+def sudo_filter(_, __, message):
+    """Runtime check for sudo users"""
+    if not message.from_user:
+        return False
+    return message.from_user.id in app.sudoers or message.from_user.id == config.OWNER_ID
+
+sudo_users_filter = filters.create(sudo_filter)
+
+
+@app.on_message(filters.command(["dashboard"]) & sudo_users_filter)
 async def dashboard_command(_, message: types.Message):
     """
     Dashboard management (Admin only)
