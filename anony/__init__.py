@@ -50,12 +50,14 @@ from anony.core.youtube import YouTube
 tg = Telegram()
 yt = YouTube()
 
-from anony.helpers._queue import Queue
-queue = Queue()
+# Import Queue directly to avoid any circular import issues
+from anony.helpers._queue import Queue as QueueClass
+queue = QueueClass()
 
 from anony.core.calls import TgCall
 anon = TgCall()
 
+# Import utilities with lazy loading to avoid circular imports
 from anony.helpers._cleanup import cleanup
 from anony.helpers._lyrics import lyrics_searcher
 
