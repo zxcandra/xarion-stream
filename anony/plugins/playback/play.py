@@ -52,6 +52,13 @@ async def play_hndlr(
     media = tg.get_media(m.reply_to_message) if m.reply_to_message else None
     tracks = []
 
+    # Check if command has arguments and detect URL
+    if len(m.command) >= 2:
+        query = " ".join(m.command[1:])
+        # Check if it's a YouTube URL
+        if "youtube.com" in query or "youtu.be" in query:
+            url = query
+    
     if url:
         if "playlist" in url:
             await sent.edit_text(
