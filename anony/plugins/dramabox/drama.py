@@ -21,12 +21,19 @@ def format_drama_list(dramas: list[Drama], title: str, emoji: str = "🎬") -> s
     text = f"{emoji} <b>{title}</b>\n\n"
     
     for i, drama in enumerate(dramas[:10], 1):
-        tags_str = ", ".join(drama.tags[:3]) if drama.tags else "-"
-        hot = f" 🔥{drama.hot_code}" if drama.hot_code else ""
-        text += f"<b>{i}.</b> <code>{drama.title}</code>{hot}\n"
-        text += f"   └ 📺 {drama.chapter_count} Episode • {tags_str}\n\n"
+        # Limit tags to 2 for cleaner display
+        tags_str = ", ".join(drama.tags[:2]) if drama.tags else "-"
+        hot = f"🔥{drama.hot_code}" if drama.hot_code else ""
+        
+        # Title with hot code on same line
+        title_line = f"<b>{i}.</b> {drama.title}"
+        if hot:
+            title_line += f" {hot}"
+        
+        text += f"{title_line}\n"
+        text += f"    📺 {drama.chapter_count} Eps • {tags_str}\n\n"
     
-    text += "<blockquote>💡 Gunakan <code>/drama [judul]</code> untuk mencari drama</blockquote>"
+    text += "<i>💡 Pilih nomor di bawah untuk lihat detail</i>"
     return text
 
 
@@ -56,8 +63,8 @@ def create_episode_keyboard(episodes: list[Episode], book_id: str, page: int = 0
     buttons = []
     row = []
     for ep in page_episodes:
-        emoji = "🔒" if ep.is_paid else "▶️"
-        btn_text = f"{emoji} EP {ep.chapter_index + 1}"
+        emoji = "🔒 " if ep.is_paid else ""
+        btn_text = f"{emoji}EP {ep.chapter_index + 1}"
         row.append(types.InlineKeyboardButton(
             text=btn_text,
             callback_data=f"drama_ep:{book_id}:{ep.chapter_index}"
@@ -118,15 +125,41 @@ def create_quality_keyboard(episode: Episode, book_id: str) -> types.InlineKeybo
     return types.InlineKeyboardMarkup(buttons)
 
 
-def create_drama_results_keyboard(dramas: list[Drama]) -> types.InlineKeyboardMarkup:
-    """Membuat keyboard untuk hasil pencarian drama."""
-    buttons = []
+def create_numbered_drama_keyboard(dramas: list[Drama], page: int = 0, search_type: str = "trending") -> types.InlineKeyboardMarkup:
+    """Membuat keyboard dengan tombol nomor 1-10 dan pagination."""
+    items_per_page = 10
+    start = page * items_per_page
+    end = start + items_per_page
+    page_dramas = dramas[start:end]
+    total_pages = (len(dramas) + items_per_page - 1) // items_per_page
     
-    for drama in dramas[:8]:  # Limit 8 hasil
-        buttons.append([types.InlineKeyboardButton(
-            text=f"📺 {drama.title[:40]}{'...' if len(drama.title) > 40 else ''}",
+    buttons = []
+    row = []
+    
+    for i, drama in enumerate(page_dramas, start=start + 1):
+        row.append(types.InlineKeyboardButton(
+            text=str(i),
             callback_data=f"drama_info:{drama.book_id}"
-        )])
+        ))
+        if len(row) == 4:  # 4 tombol per baris
+            buttons.append(row)
+            row = []
+    
+    if row:
+        buttons.append(row)
+    
+    # Navigation buttons
+    if total_pages > 1:
+        nav_row = []
+        if page > 0:
+            nav_row.append(types.InlineKeyboardButton("◀️", callback_data=f"drama_list:{search_type}:{page-1}"))
+        
+        nav_row.append(types.InlineKeyboardButton(f"📄 {page+1}/{total_pages}", callback_data="noop"))
+        
+        if end < len(dramas):
+            nav_row.append(types.InlineKeyboardButton("▶️", callback_data=f"drama_list:{search_type}:{page+1}"))
+        
+        buttons.append(nav_row)
     
     buttons.append([types.InlineKeyboardButton("❌ Tutup", callback_data="drama_close")])
     
@@ -153,7 +186,7 @@ async def drama_command(_, message: types.Message):
             return await mystic.edit_text("❌ <b>Gagal memuat data</b>", parse_mode=enums.ParseMode.HTML)
         
         text = format_drama_list(dramas, "Drama Trending", "🔥")
-        keyboard = create_drama_results_keyboard(dramas)
+        keyboard = create_numbered_drama_keyboard(dramas, 0, "trending")
         
         return await mystic.edit_text(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
     
@@ -169,7 +202,7 @@ async def drama_command(_, message: types.Message):
         )
     
     text = format_drama_list(dramas, f"Hasil Pencarian: {query}", "🔍")
-    keyboard = create_drama_results_keyboard(dramas)
+    keyboard = create_numbered_drama_keyboard(dramas, 0, f"search:{query}")
     
     await mystic.edit_text(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
 
@@ -190,7 +223,7 @@ async def drama_trending_command(_, message: types.Message):
         return await mystic.edit_text("❌ <b>Gagal memuat data</b>", parse_mode=enums.ParseMode.HTML)
     
     text = format_drama_list(dramas, "Drama Trending", "🔥")
-    keyboard = create_drama_results_keyboard(dramas)
+    keyboard = create_numbered_drama_keyboard(dramas, 0, "trending")
     
     await mystic.edit_text(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
 
@@ -211,7 +244,7 @@ async def drama_latest_command(_, message: types.Message):
         return await mystic.edit_text("❌ <b>Gagal memuat data</b>", parse_mode=enums.ParseMode.HTML)
     
     text = format_drama_list(dramas, "Drama Terbaru", "🆕")
-    keyboard = create_drama_results_keyboard(dramas)
+    keyboard = create_numbered_drama_keyboard(dramas, 0, "latest")
     
     await mystic.edit_text(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
 
@@ -427,6 +460,42 @@ async def drama_close_callback(_, callback: types.CallbackQuery):
     """Menutup/hapus pesan."""
     await callback.answer()
     await callback.message.delete()
+
+
+@app.on_callback_query(filters.regex(r"^drama_list:"))
+async def drama_list_callback(_, callback: types.CallbackQuery):
+    """Handle drama list pagination."""
+    parts = callback.data.split(":")
+    search_type = parts[1]
+    page = int(parts[2])
+    
+    await callback.answer()
+    
+    # Fetch dramas based on search type
+    if search_type == "trending":
+        dramas = await dramabox.get_trending()
+        title = "Drama Trending"
+        emoji = "🔥"
+    elif search_type == "latest":
+        dramas = await dramabox.get_latest()
+        title = "Drama Terbaru"
+        emoji = "🆕"
+    elif search_type.startswith("search:"):
+        query = search_type.split(":", 1)[1]
+        dramas = await dramabox.search(query)
+        title = f"Hasil Pencarian: {query}"
+        emoji = "🔍"
+    else:
+        return await callback.answer("❌ Tipe tidak valid", show_alert=True)
+    
+    if not dramas:
+        return await callback.answer("❌ Gagal memuat data", show_alert=True)
+    
+    text = format_drama_list(dramas, title, emoji)
+    keyboard = create_numbered_drama_keyboard(dramas, page, search_type)
+    
+    await callback.message.edit_text(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
+
 
 
 @app.on_callback_query(filters.regex(r"^noop$"))
