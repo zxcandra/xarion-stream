@@ -9,7 +9,8 @@ Command untuk mengakses konten DramaBox dari Telegram.
 """
 
 from pyrogram import enums, filters, types
-from anony import app
+from anony import app, anon, db, queue
+from anony.helpers import Media
 from .api import dramabox, Drama, Episode
 
 
@@ -305,10 +306,64 @@ async def drama_play_callback(_, callback: types.CallbackQuery):
     
     keyboard = types.InlineKeyboardMarkup([
         [types.InlineKeyboardButton("▶️ Tonton Sekarang", url=video_url)],
+        [types.InlineKeyboardButton("🎵 Stream di Voice Chat", callback_data=f"drama_stream:{book_id}:{ep_index}:{quality}")],
         [types.InlineKeyboardButton("◀️ Kembali", callback_data=f"drama_ep:{book_id}:{ep_index}")]
     ])
     
     await callback.message.edit_text(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
+
+
+@app.on_callback_query(filters.regex(r"^drama_stream:"))
+async def drama_stream_callback(_, callback: types.CallbackQuery):
+    """Memutar episode di Voice Chat."""
+    parts = callback.data.split(":")
+    book_id = parts[1]
+    ep_index = int(parts[2])
+    quality = parts[3]
+    
+    await callback.answer("⏳ Memproses stream...")
+    
+    episodes = await dramabox.get_all_episodes(book_id)
+    if not episodes or ep_index >= len(episodes):
+        return await callback.answer("❌ Episode tidak ditemukan", show_alert=True)
+    
+    episode = episodes[ep_index]
+    video_url = episode.video_urls.get(quality)
+    
+    if not video_url:
+        return await callback.answer("❌ Kualitas tidak tersedia", show_alert=True)
+        
+    chat_id = callback.message.chat.id
+    user_mention = callback.from_user.mention
+    
+    # Construct Media object
+    media = Media(
+        id=f"drama_{book_id}_{ep_index}",
+        duration="Live",
+        duration_sec=0,
+        file_path=video_url,
+        message_id=0,
+        title=f"{episode.chapter_name} [{quality}]",
+        url=video_url,
+        user=user_mention,
+        video=True
+    )
+    
+    # Check if a call is active
+    if await db.get_call(chat_id):
+        position = queue.add(chat_id, media)
+        await callback.message.reply_text(
+            f"✅ <b>Ditambahkan ke Antrian: #{position}</b>\n\n"
+            f"<blockquote><b>Judul:</b> {media.title}\n"
+            f"<b>Diminta oleh:</b> {user_mention}</blockquote>",
+            parse_mode=enums.ParseMode.HTML
+        )
+        return
+        
+    # Start new stream
+    msg = await callback.message.reply_text("🔄 <b>Memproses stream...</b>", parse_mode=enums.ParseMode.HTML)
+    media.message_id = msg.id
+    await anon.play_media(chat_id=chat_id, message=msg, media=media)
 
 
 @app.on_callback_query(filters.regex(r"^drama_back:"))
