@@ -55,12 +55,20 @@ async def play_hndlr(
     # Check if command has arguments and detect URL
     if len(m.command) >= 2:
         query = " ".join(m.command[1:])
-        # Check if it's a YouTube URL
-        if "youtube.com" in query or "youtu.be" in query:
+        # Check if it's a YouTube URL (including YouTube Music)
+        if "youtube.com" in query or "youtu.be" in query or "music.youtube.com" in query:
             url = query
     
     if url:
-        if "playlist" in url:
+        # Check if it's a real playlist (not Mix/Radio which starts with RD)
+        is_real_playlist = ("playlist?list=" in url) or ("list=PL" in url)
+        
+        # Clean URL: remove playlist/list params if it's a Mix/Radio
+        if "list=RD" in url or "start_radio" in url:
+            # Extract only the video part, ignore the radio mix
+            url = url.split("&list=")[0].split("&start_radio")[0]
+        
+        if is_real_playlist:
             await sent.edit_text(
                 "🔄 <b>Mengambil Playlist...</b>\n\n<blockquote>Mohon tunggu sebentar...</blockquote>",
                 parse_mode=enums.ParseMode.HTML
