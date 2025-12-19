@@ -57,7 +57,64 @@ class YouTube:
     def valid(self, url: str) -> bool:
         return bool(re.match(self.regex, url))
 
+    def extract_video_id(self, url: str) -> str | None:
+        """Extract video ID from YouTube URL (including YouTube Music)."""
+        # Pattern for watch?v= format
+        match = re.search(r'[?&]v=([A-Za-z0-9_-]{11})', url)
+        if match:
+            return match.group(1)
+        # Pattern for youtu.be format
+        match = re.search(r'youtu\.be/([A-Za-z0-9_-]{11})', url)
+        if match:
+            return match.group(1)
+        return None
+
+    async def get_video_info(self, video_id: str, m_id: int, video: bool = False) -> Track | None:
+        """Get video info directly using yt_dlp."""
+        url = self.base + video_id
+        try:
+            def _get_info():
+                opts = {"quiet": True, "no_warnings": True}
+                cookie = self.get_cookies()
+                if cookie:
+                    opts["cookiefile"] = cookie
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    return info
+            
+            info = await asyncio.to_thread(_get_info)
+            if not info:
+                return None
+            
+            duration_sec = info.get("duration", 0)
+            minutes = duration_sec // 60
+            seconds = duration_sec % 60
+            duration = f"{minutes}:{seconds:02d}"
+            
+            return Track(
+                id=info.get("id"),
+                channel_name=info.get("channel", info.get("uploader", "")),
+                duration=duration,
+                duration_sec=duration_sec,
+                message_id=m_id,
+                title=info.get("title"),
+                thumbnail=info.get("thumbnail", ""),
+                url=info.get("webpage_url", url),
+                view_count=str(info.get("view_count", "")),
+                video=video,
+            )
+        except Exception as e:
+            logger.error(f"Failed to get video info: {e}")
+            return None
+
     async def search(self, query: str, m_id: int, video: bool = False) -> Track | None:
+        # Check if query is a URL - extract video ID and get info directly
+        if "youtube.com" in query or "youtu.be" in query or "music.youtube.com" in query:
+            video_id = self.extract_video_id(query)
+            if video_id:
+                return await self.get_video_info(video_id, m_id, video)
+        
+        # Regular search
         _search = VideosSearch(query, limit=1, with_live=False)
         results = await _search.next()
         if results and results["result"]:

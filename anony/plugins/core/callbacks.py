@@ -30,6 +30,35 @@ async def _controls(_, query: types.CallbackQuery):
 
     if action == "status":
         return await query.answer()
+    
+    # Handle playlist and close without admin requirement message
+    if action == "playlist":
+        media = queue.get_current(chat_id)
+        if not media:
+            return await query.answer("Tidak ada lagu yang sedang diputar!", show_alert=True)
+        
+        user_id = query.from_user.id
+        track_id = media.id
+        title = media.title
+        duration = getattr(media, 'duration', '0:00')
+        url = getattr(media, 'url', '')
+        
+        try:
+            added = await db.add_to_playlist(user_id, track_id, title, duration, url)
+            if added:
+                return await query.answer(f"✅ '{title}' ditambahkan ke playlist Anda!", show_alert=True)
+            else:
+                return await query.answer(f"ℹ️ '{title}' sudah ada di playlist Anda!", show_alert=True)
+        except Exception as e:
+            return await query.answer(f"❌ Error: {str(e)[:50]}", show_alert=True)
+
+    if action == "close":
+        try:
+            await query.message.delete()
+        except:
+            pass
+        return
+
     await query.answer("Memproses...", show_alert=True)
 
     if action == "pause":
@@ -95,33 +124,6 @@ async def _controls(_, query: types.CallbackQuery):
         await anon.stop(chat_id)
         status = "Streaming dihentikan"
         reply = f"{user} menghentikan streaming."
-
-    elif action == "playlist":
-        # Save currently playing track to user's playlist
-        media = queue.get_current(chat_id)
-        if not media:
-            return await query.answer("Tidak ada lagu yang sedang diputar!", show_alert=True)
-        
-        user_id = query.from_user.id
-        track_id = media.id
-        title = media.title
-        duration = getattr(media, 'duration', '0:00')
-        url = getattr(media, 'url', '')
-        
-        added = await db.add_to_playlist(user_id, track_id, title, duration, url)
-        
-        if added:
-            return await query.answer(f"✅ '{title}' ditambahkan ke playlist Anda!", show_alert=True)
-        else:
-            return await query.answer(f"ℹ️ '{title}' sudah ada di playlist Anda!", show_alert=True)
-
-    elif action == "close":
-        # Close/delete the control message
-        try:
-            await query.message.delete()
-        except:
-            pass
-        return
 
     try:
         if action in ["skip", "replay", "stop"]:
