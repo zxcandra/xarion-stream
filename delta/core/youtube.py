@@ -69,7 +69,7 @@ class YouTube:
             return match.group(1)
         return None
 
-    async def get_video_info(self, video_id: str, m_id: int, video: bool = False) -> Track | None:
+    async def get_video_info(self, video_id: str, m_id: int, video: bool = False, user_id: int = 0) -> Track | None:
         """Get video info directly using yt_dlp."""
         url = self.base + video_id
         try:
@@ -102,21 +102,26 @@ class YouTube:
                 url=info.get("webpage_url", url),
                 view_count=str(info.get("view_count", "")),
                 video=video,
+                user_id=user_id,
             )
         except Exception as e:
             logger.error(f"Failed to get video info: {e}")
             return None
 
-    async def search(self, query: str, m_id: int, video: bool = False) -> Track | None:
+    async def search(self, query: str, m_id: int, video: bool = False, user_id: int = 0) -> Track | None:
         # Check if query is a URL - extract video ID and get info directly
         if "youtube.com" in query or "youtu.be" in query or "music.youtube.com" in query:
             video_id = self.extract_video_id(query)
             if video_id:
-                return await self.get_video_info(video_id, m_id, video)
+                return await self.get_video_info(video_id, m_id, video, user_id)
         
         # Regular search
-        _search = VideosSearch(query, limit=1, with_live=False)
-        results = await _search.next()
+        try:
+            _search = VideosSearch(query, limit=1, with_live=False)
+            results = await _search.next()
+        except:
+             return None
+             
         if results and results["result"]:
             data = results["result"][0]
             return Track(
@@ -130,6 +135,7 @@ class YouTube:
                 url=data.get("link"),
                 view_count=data.get("viewCount", {}).get("short"),
                 video=video,
+                user_id=user_id,
             )
         return None
 
@@ -149,6 +155,7 @@ class YouTube:
                     user=user,
                     view_count="",
                     video=video,
+                    user_id=0  # Playlist user_id handling can be improved later if needed
                 )
                 tracks.append(track)
         except:

@@ -88,8 +88,9 @@ async def play_hndlr(
             file = tracks[0]
             tracks.remove(file)
             file.message_id = sent.id
+            file.user_id = m.from_user.id  # Set user_id for the first track
         else:
-            file = await yt.search(url, sent.id, video=video)
+            file = await yt.search(url, sent.id, video=video, user_id=m.from_user.id)
 
         if not file:
             await sent.edit_text(
@@ -101,7 +102,7 @@ async def play_hndlr(
 
     elif len(m.command) >= 2:
         query = " ".join(m.command[1:])
-        file = await yt.search(query, sent.id, video=video)
+        file = await yt.search(query, sent.id, video=video, user_id=m.from_user.id)
         if not file:
             await sent.edit_text(
                 f"❌ <b>Gagal Memproses</b>\n\n<blockquote>Jika masalah berlanjut, laporkan ke <a href='tg://user?id={config.OWNER_ID}'>chat dukungan</a></blockquote>",

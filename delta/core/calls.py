@@ -105,7 +105,7 @@ class TgCall(PyTgCalls):
                         track_id=media.id,
                         title=media.title,
                         duration=media.duration,
-                        user_id=message.from_user.id,
+                        user_id=media.user_id or message.from_user.id,
                         chat_id=chat_id
                     )
                     await db.increment_queries()
@@ -200,7 +200,15 @@ class TgCall(PyTgCalls):
         if not media:
             return await self.stop(chat_id)
 
-        msg = await app.send_message(chat_id=chat_id, text="Memutar lagu selanjutnya...")
+        msg_text = "Memutar lagu selanjutnya..."
+        if media.user_id:
+            try:
+                user = await app.get_users(media.user_id)
+                msg_text += f"\nRequest dari: {user.mention}"
+            except:
+                pass
+
+        msg = await app.send_message(chat_id=chat_id, text=msg_text)
         if not media.file_path:
             media.file_path = await yt.download(media.id, video=media.video)
             if not media.file_path:

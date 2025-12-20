@@ -3,66 +3,81 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeltaMusic Statistics Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DeltaMusic Statistics</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --tg-theme-bg-color: #182330;
-            --tg-theme-text-color: #f5f5f5;
-            --tg-theme-hint-color: #7b8593;
-            --tg-theme-link-color: #64b5ef;
-            --tg-theme-button-color: #4b89b8;
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #000000;
+            --tg-theme-hint-color: #8e8e93;
+            --tg-theme-link-color: #007aff;
+            --tg-theme-button-color: #007aff;
             --tg-theme-button-text-color: #ffffff;
-            --tg-theme-secondary-bg-color: #212d3b;
-            --tg-theme-header-bg-color: #17212b;
-
-            --card-bg: var(--tg-theme-secondary-bg-color, #212d3b);
-            --bg-color: var(--tg-theme-bg-color, #182330);
-            --text-color: var(--tg-theme-text-color, #f5f5f5);
-            --hint-color: var(--tg-theme-hint-color, #7b8593);
-            --accent-color: var(--tg-theme-button-color, #4b89b8);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            --tg-theme-secondary-bg-color: #efeff4;
+            --tg-theme-header-bg-color: #efeff4;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.5;
-            padding: 16px;
-            max-width: 800px;
-            margin: 0 auto;
+            background-color: var(--tg-theme-secondary-bg-color, #efeff4);
+            color: var(--tg-theme-text-color, #000000);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 40px;
+            /* Space for FAB */
         }
 
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Header */
         .header {
-            margin-bottom: 24px;
             text-align: center;
-            padding: 12px;
+            padding: 24px 0 16px;
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin: 0 0 4px;
+            letter-spacing: -0.5px;
         }
 
         .header p {
-            color: var(--hint-color);
-            font-size: 14px;
+            color: var(--tg-theme-hint-color, #8e8e93);
+            font-size: 15px;
+            margin: 0;
         }
 
-        /* Stats Grid */
+        /* Section Titles (iOS Grouped Header Style) */
+        .section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--tg-theme-hint-color, #8e8e93);
+            margin: 24px 0 8px 16px;
+            letter-spacing: -0.1px;
+        }
+
+        /* Grouped Cards */
+        .card {
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        /* Overview Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: var(--tg-theme-bg-color, #ffffff);
             margin-bottom: 24px;
         }
 
@@ -72,292 +87,281 @@
             }
         }
 
-        .stat-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
+        .stat-item {
             padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             text-align: center;
-            transition: transform 0.2s;
-        }
-
-        .stat-card:active {
-            transform: scale(0.98);
-            opacity: 0.8;
-        }
-
-        .stat-card .icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .stat-card .value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-
-        .stat-card .label {
-            font-size: 12px;
-            color: var(--hint-color);
-            margin-top: 4px;
-        }
-
-        /* Chart */
-        .section-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 24px;
-            overflow: hidden;
-        }
-
-        .section-header {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .chart-wrapper {
-            position: relative;
-            height: 250px;
-            width: 100%;
-        }
-
-        /* Tables */
-        .list-group {
-            border-radius: 12px;
-            background-color: var(--card-bg);
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-
-        .list-header {
-            padding: 16px;
-            font-size: 17px;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            background-color: rgba(255, 255, 255, 0.02);
-        }
-
-        .list-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
             position: relative;
         }
 
-        .list-item:last-child {
-            border-bottom: none;
+        /* Grid separators */
+        .stat-item::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 15%;
+            bottom: 15%;
+            width: 1px;
+            background-color: var(--tg-theme-secondary-bg-color, #efeff4);
         }
 
-        .rank-badge {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background-color: var(--accent-color);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+        .stat-item:nth-child(2n)::after {
+            display: none;
+        }
+
+        @media (min-width: 600px) {
+            .stat-item::after {
+                display: block;
+            }
+
+            .stat-item:last-child::after {
+                display: none;
+            }
+        }
+
+        .stat-item:active {
+            background-color: var(--tg-theme-secondary-bg-color, #efeff4);
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--tg-theme-text-color);
+        }
+
+        .stat-label {
             font-size: 13px;
+            color: var(--tg-theme-hint-color, #8e8e93);
+        }
+
+        /* List Items */
+        .list-row {
+            display: flex;
+            align-items: center;
+            padding: 11px 16px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            position: relative;
+            min-height: 48px;
+        }
+
+        .list-row:active {
+            background-color: var(--tg-theme-secondary-bg-color, #efeff4);
+        }
+
+        /* Separator Line */
+        .list-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 56px;
+            /* Align with text start */
+            right: 0;
+            height: 1px;
+            background-color: var(--tg-theme-secondary-bg-color, #effef4);
+            /* Fallback for separator color if variable not distinctive enough implies using opacity */
+            background-color: rgba(128, 128, 128, 0.2);
+        }
+
+        .rank-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--tg-theme-secondary-bg-color, #efeff4);
+            color: var(--tg-theme-text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
             margin-right: 12px;
             flex-shrink: 0;
         }
 
-        .rank-badge.top-1 {
-            background: #FFD700;
+        /* Top 3 Colors */
+        .rank-1 {
+            background-color: #FFD700;
             color: #000;
         }
 
-        .rank-badge.top-2 {
-            background: #C0C0C0;
+        .rank-2 {
+            background-color: #C0C0C0;
             color: #000;
         }
 
-        .rank-badge.top-3 {
-            background: #CD7F32;
+        .rank-3 {
+            background-color: #CD7F32;
             color: #000;
         }
 
-        .item-info {
+        .row-content {
             flex: 1;
             min-width: 0;
         }
 
-        .item-title {
-            font-weight: 500;
-            font-size: 15px;
+        .row-title {
+            font-size: 16px;
+            font-weight: 400;
+            /* Apple style is usually regular for list items */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            color: var(--text-color);
+            color: var(--tg-theme-text-color);
         }
 
-        .item-subtitle {
+        .row-subtitle {
             font-size: 13px;
-            color: var(--hint-color);
+            color: var(--tg-theme-hint-color);
             margin-top: 2px;
         }
 
-        .item-value {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--accent-color);
+        .row-value {
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--tg-theme-hint-color);
+            /* Value usually secondary color in iOS settings unless highlighted */
             margin-left: 12px;
             flex-shrink: 0;
         }
 
-        .refresh-btn {
+        /* Chart Container */
+        .chart-container {
+            padding: 16px;
+            height: 240px;
+        }
+
+        /* Loading & Error */
+        .status-text {
+            text-align: center;
+            padding: 24px;
+            color: var(--tg-theme-hint-color);
+            font-size: 14px;
+        }
+
+        /* Floating Refresh Button */
+        .fab {
             position: fixed;
             bottom: 24px;
             right: 24px;
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            cursor: pointer;
+            background-color: var(--tg-theme-button-color, #007aff);
+            color: var(--tg-theme-button-text-color, #ffffff);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: none;
+            cursor: pointer;
             z-index: 100;
+            transition: transform 0.2s;
         }
 
-        .refresh-btn:active {
+        .fab:active {
             transform: scale(0.95);
-            background-color: var(--tg-theme-link-color);
         }
 
-        .spinning {
-            animation: spin 1s linear infinite;
+        .spin {
+            animation: spin 1s infinite linear;
         }
 
         @keyframes spin {
-            100% {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
                 transform: rotate(360deg);
             }
-        }
-
-        .loading-text {
-            text-align: center;
-            padding: 24px;
-            color: var(--hint-color);
-            font-size: 14px;
-        }
-
-        a {
-            color: var(--tg-theme-link-color, #64b5ef);
-            text-decoration: none;
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <h1>DeltaMusic Dashboard</h1>
-        <p>Real-time Statistics</p>
-    </div>
+    <div class="container">
+        <div class="header">
+            <h1>DeltaMusic</h1>
+            <p>Statistics Dashboard</p>
+        </div>
 
-    <!-- Stats Overview Cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="icon">👥</div>
-            <div class="value" id="totalUsers">-</div>
-            <div class="label">Users</div>
+        <div class="section-title">Overview</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value" id="totalUsers">-</div>
+                <div class="stat-label">Users</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalChats">-</div>
+                <div class="stat-label">Groups</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalPlays">-</div>
+                <div class="stat-label">Plays</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="activeCalls">-</div>
+                <div class="stat-label">Calls</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="icon">💬</div>
-            <div class="value" id="totalChats">-</div>
-            <div class="label">Groups</div>
-        </div>
-        <div class="stat-card">
-            <div class="icon">🎵</div>
-            <div class="value" id="totalPlays">-</div>
-            <div class="label">Plays</div>
-        </div>
-        <div class="stat-card">
-            <div class="icon">🔊</div>
-            <div class="value" id="activeCalls">-</div>
-            <div class="label">Calls</div>
-        </div>
-    </div>
 
-    <!-- Chart -->
-    <div class="section-card">
-        <div class="section-header">📈 Daily Play Trends</div>
-        <div class="chart-wrapper">
-            <canvas id="dailyChart"></canvas>
+        <div class="section-title">Activity Trend</div>
+        <div class="card">
+            <div class="chart-container">
+                <canvas id="dailyChart"></canvas>
+            </div>
         </div>
-    </div>
 
-    <!-- Top Tracks List -->
-    <div class="list-group">
-        <div class="list-header">🏆 Top Tracks</div>
-        <div id="topTracksList">
-            <div class="loading-text">Loading...</div>
+        <div class="section-title">Top Tracks</div>
+        <div class="card" id="topTracksList">
+            <div class="status-text">Loading...</div>
         </div>
-    </div>
 
-    <!-- Top Users List -->
-    <div class="list-group">
-        <div class="list-header">👤 Most Active Users</div>
-        <div id="topUsersList">
-            <div class="loading-text">Loading...</div>
+        <div class="section-title">Most Active Users</div>
+        <div class="card" id="topUsersList">
+            <div class="status-text">Loading...</div>
+        </div>
+
+        <div class="section-title">Top Groups</div>
+        <div class="card" id="topChatsList">
+            <div class="status-text">Loading...</div>
         </div>
     </div>
 
-    <!-- Top Chats List -->
-    <div class="list-group">
-        <div class="list-header">💬 Top Groups</div>
-        <div id="topChatsList">
-            <div class="loading-text">Loading...</div>
-        </div>
-    </div>
-
-    <button class="refresh-btn" onclick="loadAllData()" title="Refresh Data">
-        ↻
-    </button>
+    <button class="fab" onclick="loadAllData()">↻</button>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
         const API_BASE = window.location.origin;
         let dailyChart = null;
+        let tg = window.Telegram.WebApp;
 
-        // Initialize Telegram WebApp to sync theme
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            // Optional: Expand to full height
-            window.Telegram.WebApp.expand();
+        function initApp() {
+            if (tg) {
+                tg.ready();
+                tg.expand();
+            }
+            loadAllData();
+            setInterval(loadAllData, 30000);
         }
 
         async function fetchAPI(endpoint) {
             try {
                 const response = await fetch(`${API_BASE}/api/${endpoint}`);
-                if (!response.ok) throw new Error('API request failed');
+                if (!response.ok) throw new Error('API Error');
                 return await response.json();
             } catch (error) {
-                console.error(`Error fetching ${endpoint}:`, error);
+                console.error(error);
                 return null;
             }
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('id-ID').format(num);
         }
 
         async function loadOverview() {
@@ -370,137 +374,109 @@
             }
         }
 
-        async function loadDailyStats() {
+        async function loadChart() {
             const data = await fetchAPI('daily-stats?days=7');
-            if (data) {
-                const labels = data.map(d => {
-                    const date = new Date(d.date);
-                    return date.toLocaleDateString('id-ID', { weekday: 'short' });
-                });
-                const values = data.map(d => d.play_count);
+            if (!data) return;
 
-                const ctx = document.getElementById('dailyChart');
-                if (dailyChart) dailyChart.destroy();
+            const ctx = document.getElementById('dailyChart');
+            const labels = data.map(d => new Date(d.date).toLocaleDateString('id-ID', { weekday: 'short' }));
+            const values = data.map(d => d.play_count);
 
-                // Get theme color for chart
-                const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+            if (dailyChart) dailyChart.destroy();
 
-                dailyChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Plays',
-                            data: values,
-                            borderColor: accentColor,
-                            backgroundColor: accentColor.replace(')', ', 0.1)').replace('rgb', 'rgba').replace('#', ''), // Simple hack, better to use proper conversion or stick to hex
-                            borderWidth: 2,
-                            tension: 0.3,
-                            pointRadius: 4,
-                            fill: false
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false, drawBorder: false }, ticks: { color: '#7b8593' } },
-                            y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { color: '#7b8593', maxTicksLimit: 5 } }
+            // Use Telegram theme color for the chart line
+            const style = getComputedStyle(document.body);
+            const lineColor = style.getPropertyValue('--tg-theme-button-color').trim() || '#007aff';
+            const gridColor = style.getPropertyValue('--tg-theme-hint-color').trim() || '#8e8e93';
+
+            dailyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Plays',
+                        data: values,
+                        borderColor: lineColor,
+                        backgroundColor: lineColor,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: style.getPropertyValue('--tg-theme-bg-color').trim(),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: gridColor, font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(128,128,128,0.1)', borderDash: [5, 5] },
+                            ticks: { color: gridColor, font: { size: 10 }, maxTicksLimit: 5 }
                         }
                     }
-                });
+                }
+            });
+        }
+
+        function renderList(containerId, data, titleKey, subtitleKey, valueKey, type) {
+            const container = document.getElementById(containerId);
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="status-text">No data available</div>';
+                return;
             }
-        }
 
-        function getRankClass(index) {
-            if (index === 0) return 'top-1';
-            if (index === 1) return 'top-2';
-            if (index === 2) return 'top-3';
-            return '';
-        }
+            container.innerHTML = data.map((item, index) => {
+                const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                const title = item[titleKey] || 'Unknown';
+                // For users, show user_id as subtitle. For tracks, show duration. For chats, nothing or member count if available.
+                let subtitle = '';
+                if (titleKey === 'username' && item.user_id) subtitle = `ID: ${item.user_id}`;
+                if (titleKey === 'title' && item.duration) subtitle = item.duration;
 
-        function formatNumber(num) {
-            return num.toLocaleString('id-ID');
-        }
-
-        async function loadTopTracks() {
-            const data = await fetchAPI('top-tracks?limit=5'); // Reduced to 5 for mobile view
-            const container = document.getElementById('topTracksList');
-
-            if (data && data.length > 0) {
-                container.innerHTML = data.map((track, index) => `
-                    <div class="list-item">
-                        <div class="rank-badge ${getRankClass(index)}">${index + 1}</div>
-                        <div class="item-info">
-                            <div class="item-title">${track.title}</div>
-                            <div class="item-subtitle">${track.duration}</div>
-                        </div>
-                        <div class="item-value">${formatNumber(track.play_count)}</div>
+                return `
+                <div class="list-row">
+                    <div class="rank-circle ${rankClass}">${index + 1}</div>
+                    <div class="row-content">
+                        <div class="row-title">${title}</div>
+                        ${subtitle ? `<div class="row-subtitle">${subtitle}</div>` : ''}
                     </div>
-                `).join('');
-            } else {
-                container.innerHTML = '<div class="loading-text">No data available</div>';
-            }
+                    <div class="row-value">${formatNumber(item[valueKey])}</div>
+                </div>
+                `;
+            }).join('');
         }
 
-        async function loadTopUsers() {
-            const data = await fetchAPI('top-users?limit=5');
-            const container = document.getElementById('topUsersList');
+        async function loadLists() {
+            const [tracks, users, chats] = await Promise.all([
+                fetchAPI('top-tracks?limit=5'),
+                fetchAPI('top-users?limit=5'),
+                fetchAPI('top-chats?limit=5')
+            ]);
 
-            if (data && data.length > 0) {
-                container.innerHTML = data.map((user, index) => `
-                    <div class="list-item">
-                        <div class="rank-badge ${getRankClass(index)}">${index + 1}</div>
-                        <div class="item-info">
-                            <div class="item-title">${user.username}</div>
-                            <div class="item-subtitle">ID: ${user.user_id}</div>
-                        </div>
-                        <div class="item-value">${formatNumber(user.play_count)}</div>
-                    </div>
-                `).join('');
-            } else {
-                container.innerHTML = '<div class="loading-text">No data available</div>';
-            }
-        }
-
-        async function loadTopChats() {
-            const data = await fetchAPI('top-chats?limit=5');
-            const container = document.getElementById('topChatsList');
-
-            if (data && data.length > 0) {
-                container.innerHTML = data.map((chat, index) => `
-                    <div class="list-item">
-                        <div class="rank-badge ${getRankClass(index)}">${index + 1}</div>
-                        <div class="item-info">
-                            <div class="item-title">${chat.chat_name}</div>
-                        </div>
-                        <div class="item-value">${formatNumber(chat.play_count)}</div>
-                    </div>
-                `).join('');
-            } else {
-                container.innerHTML = '<div class="loading-text">No data available</div>';
-            }
+            renderList('topTracksList', tracks, 'title', null, 'play_count', 'track');
+            renderList('topUsersList', users, 'username', null, 'play_count', 'user');
+            renderList('topChatsList', chats, 'chat_name', null, 'play_count', 'chat');
         }
 
         async function loadAllData() {
-            const btn = document.querySelector('.refresh-btn');
-            btn.classList.add('spinning');
+            const fab = document.querySelector('.fab');
+            fab.classList.add('spin');
 
             await Promise.all([
                 loadOverview(),
-                loadDailyStats(),
-                loadTopTracks(),
-                loadTopUsers(),
-                loadTopChats()
+                loadChart(),
+                loadLists()
             ]);
 
-            btn.classList.remove('spinning');
+            fab.classList.remove('spin');
         }
 
-        // Initialize
-        loadAllData();
-        setInterval(loadAllData, 30000);
+        // Start
+        initApp();
     </script>
 </body>
 
