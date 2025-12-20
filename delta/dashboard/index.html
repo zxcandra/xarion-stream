@@ -5,364 +5,349 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeltaMusic Statistics Dashboard</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --tg-theme-bg-color: #182330;
+            --tg-theme-text-color: #f5f5f5;
+            --tg-theme-hint-color: #7b8593;
+            --tg-theme-link-color: #64b5ef;
+            --tg-theme-button-color: #4b89b8;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-secondary-bg-color: #212d3b;
+            --tg-theme-header-bg-color: #17212b;
+
+            --card-bg: var(--tg-theme-secondary-bg-color, #212d3b);
+            --bg-color: var(--tg-theme-bg-color, #182330);
+            --text-color: var(--tg-theme-text-color, #f5f5f5);
+            --hint-color: var(--tg-theme-hint-color, #7b8593);
+            --accent-color: var(--tg-theme-button-color, #4b89b8);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-
-        .container {
-            max-width: 1400px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 16px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
         .header {
+            margin-bottom: 24px;
             text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.6s ease;
+            padding: 12px;
         }
 
         .header h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
         .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            color: var(--hint-color);
+            font-size: 14px;
         }
 
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        @media (min-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeInUp 0.6s ease;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        .stat-card:active {
+            transform: scale(0.98);
+            opacity: 0.8;
         }
 
         .stat-card .icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-
-        .stat-card .label {
-            font-size: 0.9rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
+            font-size: 24px;
+            margin-bottom: 8px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .stat-card .value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-color);
         }
 
-        .chart-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            animation: fadeInUp 0.8s ease;
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--hint-color);
+            margin-top: 4px;
         }
 
-        .chart-container h2 {
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 1.5rem;
+        /* Chart */
+        .section-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .chart-wrapper {
             position: relative;
-            height: 400px;
-        }
-
-        .table-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            animation: fadeInUp 1s ease;
-            overflow-x: auto;
-        }
-
-        .table-container h2 {
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 1.5rem;
-        }
-
-        table {
+            height: 250px;
             width: 100%;
-            border-collapse: collapse;
         }
 
-        table thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        /* Tables */
+        .list-group {
+            border-radius: 12px;
+            background-color: var(--card-bg);
+            overflow: hidden;
+            margin-bottom: 24px;
         }
 
-        table th {
-            padding: 15px;
-            text-align: left;
+        .list-header {
+            padding: 16px;
+            font-size: 17px;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.02);
         }
 
-        table td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+            position: relative;
         }
 
-        table tbody tr {
-            transition: background 0.2s ease;
+        .list-item:last-child {
+            border-bottom: none;
         }
 
-        table tbody tr:hover {
-            background: #f8f9ff;
-        }
-
-        .rank {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .rank-badge {
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            text-align: center;
-            line-height: 30px;
+            background-color: var(--accent-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
-            margin-right: 10px;
+            font-size: 13px;
+            margin-right: 12px;
+            flex-shrink: 0;
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: white;
-            font-size: 1.2rem;
+        .rank-badge.top-1 {
+            background: #FFD700;
+            color: #000;
+        }
+
+        .rank-badge.top-2 {
+            background: #C0C0C0;
+            color: #000;
+        }
+
+        .rank-badge.top-3 {
+            background: #CD7F32;
+            color: #000;
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-title {
+            font-weight: 500;
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-color);
+        }
+
+        .item-subtitle {
+            font-size: 13px;
+            color: var(--hint-color);
+            margin-top: 2px;
+        }
+
+        .item-value {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--accent-color);
+            margin-left: 12px;
+            flex-shrink: 0;
         }
 
         .refresh-btn {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
             color: white;
             border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            z-index: 1000;
-        }
-
-        .refresh-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: transform 0.2s, background 0.2s;
+            z-index: 100;
         }
 
         .refresh-btn:active {
             transform: scale(0.95);
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            background-color: var(--tg-theme-link-color);
         }
 
         .spinning {
             animation: spin 1s linear infinite;
         }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
             }
+        }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+        .loading-text {
+            text-align: center;
+            padding: 24px;
+            color: var(--hint-color);
+            font-size: 14px;
+        }
 
-            .chart-wrapper {
-                height: 300px;
-            }
-
-            table {
-                font-size: 0.85rem;
-            }
+        a {
+            color: var(--tg-theme-link-color, #64b5ef);
+            text-decoration: none;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎵 DeltaMusic Dashboard</h1>
-            <p>Real-time Statistics & Analytics | Managed by DeltaMusic</p>
-        </div>
+    <div class="header">
+        <h1>DeltaMusic Dashboard</h1>
+        <p>Real-time Statistics</p>
+    </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="icon">👥</div>
-                <div class="label">Total Users</div>
-                <div class="value" id="totalUsers">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="icon">💬</div>
-                <div class="label">Total Groups</div>
-                <div class="value" id="totalChats">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="icon">🎵</div>
-                <div class="label">Total Plays</div>
-                <div class="value" id="totalPlays">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="icon">🔊</div>
-                <div class="label">Active Calls</div>
-                <div class="value" id="activeCalls">-</div>
-            </div>
+    <!-- Stats Overview Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="icon">👥</div>
+            <div class="value" id="totalUsers">-</div>
+            <div class="label">Users</div>
         </div>
-
-        <div class="chart-container">
-            <h2>📈 Play Count Trend (Last 7 Days)</h2>
-            <div class="chart-wrapper">
-                <canvas id="dailyChart"></canvas>
-            </div>
+        <div class="stat-card">
+            <div class="icon">💬</div>
+            <div class="value" id="totalChats">-</div>
+            <div class="label">Groups</div>
         </div>
-
-        <div class="table-container">
-            <h2>🏆 Top Tracks</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Song Title</th>
-                        <th>Duration</th>
-                        <th>Play Count</th>
-                    </tr>
-                </thead>
-                <tbody id="topTracksTable">
-                    <tr>
-                        <td colspan="4" class="loading">Loading...</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="stat-card">
+            <div class="icon">🎵</div>
+            <div class="value" id="totalPlays">-</div>
+            <div class="label">Plays</div>
         </div>
-
-        <div class="table-container">
-            <h2>👤 Most Active Users</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Username</th>
-                        <th>User ID</th>
-                        <th>Play Count</th>
-                    </tr>
-                </thead>
-                <tbody id="topUsersTable">
-                    <tr>
-                        <td colspan="4" class="loading">Loading...</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="stat-card">
+            <div class="icon">🔊</div>
+            <div class="value" id="activeCalls">-</div>
+            <div class="label">Calls</div>
         </div>
+    </div>
 
-        <div class="table-container">
-            <h2>💬 Most Active Groups</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Group Name</th>
-                        <th>Play Count</th>
-                    </tr>
-                </thead>
-                <tbody id="topChatsTable">
-                    <tr>
-                        <td colspan="3" class="loading">Loading...</td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- Chart -->
+    <div class="section-card">
+        <div class="section-header">📈 Daily Play Trends</div>
+        <div class="chart-wrapper">
+            <canvas id="dailyChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Tracks List -->
+    <div class="list-group">
+        <div class="list-header">🏆 Top Tracks</div>
+        <div id="topTracksList">
+            <div class="loading-text">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Top Users List -->
+    <div class="list-group">
+        <div class="list-header">👤 Most Active Users</div>
+        <div id="topUsersList">
+            <div class="loading-text">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Top Chats List -->
+    <div class="list-group">
+        <div class="list-header">💬 Top Groups</div>
+        <div id="topChatsList">
+            <div class="loading-text">Loading...</div>
         </div>
     </div>
 
     <button class="refresh-btn" onclick="loadAllData()" title="Refresh Data">
-        🔄
+        ↻
     </button>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
-        let dailyChart = null;
         const API_BASE = window.location.origin;
+        let dailyChart = null;
+
+        // Initialize Telegram WebApp to sync theme
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            // Optional: Expand to full height
+            window.Telegram.WebApp.expand();
+        }
 
         async function fetchAPI(endpoint) {
             try {
@@ -378,10 +363,10 @@
         async function loadOverview() {
             const data = await fetchAPI('overview');
             if (data) {
-                document.getElementById('totalUsers').textContent = data.total_users.toLocaleString();
-                document.getElementById('totalChats').textContent = data.total_chats.toLocaleString();
-                document.getElementById('totalPlays').textContent = data.total_plays.toLocaleString();
-                document.getElementById('activeCalls').textContent = data.active_calls.toLocaleString();
+                document.getElementById('totalUsers').textContent = formatNumber(data.total_users);
+                document.getElementById('totalChats').textContent = formatNumber(data.total_chats);
+                document.getElementById('totalPlays').textContent = formatNumber(data.total_plays);
+                document.getElementById('activeCalls').textContent = formatNumber(data.active_calls);
             }
         }
 
@@ -395,10 +380,10 @@
                 const values = data.map(d => d.play_count);
 
                 const ctx = document.getElementById('dailyChart');
+                if (dailyChart) dailyChart.destroy();
 
-                if (dailyChart) {
-                    dailyChart.destroy();
-                }
+                // Get theme color for chart
+                const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
 
                 dailyChart = new Chart(ctx, {
                     type: 'line',
@@ -407,100 +392,94 @@
                         datasets: [{
                             label: 'Plays',
                             data: values,
-                            borderColor: 'rgba(102, 126, 234, 1)',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 6,
-                            pointHoverRadius: 8,
-                            pointBackgroundColor: 'rgba(102, 126, 234, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2
+                            borderColor: accentColor,
+                            backgroundColor: accentColor.replace(')', ', 0.1)').replace('rgb', 'rgba').replace('#', ''), // Simple hack, better to use proper conversion or stick to hex
+                            borderWidth: 2,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            fill: false
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: 12,
-                                titleFont: { size: 14 },
-                                bodyFont: { size: 13 }
-                            }
-                        },
+                        plugins: { legend: { display: false } },
                         scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
+                            x: { grid: { display: false, drawBorder: false }, ticks: { color: '#7b8593' } },
+                            y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { color: '#7b8593', maxTicksLimit: 5 } }
                         }
                     }
                 });
             }
         }
 
+        function getRankClass(index) {
+            if (index === 0) return 'top-1';
+            if (index === 1) return 'top-2';
+            if (index === 2) return 'top-3';
+            return '';
+        }
+
+        function formatNumber(num) {
+            return num.toLocaleString('id-ID');
+        }
+
         async function loadTopTracks() {
-            const data = await fetchAPI('top-tracks?limit=10');
-            const tbody = document.getElementById('topTracksTable');
+            const data = await fetchAPI('top-tracks?limit=5'); // Reduced to 5 for mobile view
+            const container = document.getElementById('topTracksList');
 
             if (data && data.length > 0) {
-                tbody.innerHTML = data.map((track, index) => `
-                    <tr>
-                        <td><span class="rank">${index + 1}</span></td>
-                        <td><strong>${track.title}</strong></td>
-                        <td>${track.duration}</td>
-                        <td><strong>${track.play_count.toLocaleString()}</strong> plays</td>
-                    </tr>
+                container.innerHTML = data.map((track, index) => `
+                    <div class="list-item">
+                        <div class="rank-badge ${getRankClass(index)}">${index + 1}</div>
+                        <div class="item-info">
+                            <div class="item-title">${track.title}</div>
+                            <div class="item-subtitle">${track.duration}</div>
+                        </div>
+                        <div class="item-value">${formatNumber(track.play_count)}</div>
+                    </div>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">No data available</td></tr>';
+                container.innerHTML = '<div class="loading-text">No data available</div>';
             }
         }
 
         async function loadTopUsers() {
-            const data = await fetchAPI('top-users?limit=10');
-            const tbody = document.getElementById('topUsersTable');
+            const data = await fetchAPI('top-users?limit=5');
+            const container = document.getElementById('topUsersList');
 
             if (data && data.length > 0) {
-                tbody.innerHTML = data.map((user, index) => `
-                    <tr>
-                        <td><span class="rank">${index + 1}</span></td>
-                        <td><strong>${user.username}</strong></td>
-                        <td><code>${user.user_id}</code></td>
-                        <td><strong>${user.play_count.toLocaleString()}</strong> plays</td>
-                    </tr>
+                container.innerHTML = data.map((user, index) => `
+                    <div class="list-item">
+                        <div class="rank-badge ${getRankClass(index)}">${index + 1}</div>
+                        <div class="item-info">
+                            <div class="item-title">${user.username}</div>
+                            <div class="item-subtitle">ID: ${user.user_id}</div>
+                        </div>
+                        <div class="item-value">${formatNumber(user.play_count)}</div>
+                    </div>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">No data available</td></tr>';
+                container.innerHTML = '<div class="loading-text">No data available</div>';
             }
         }
 
         async function loadTopChats() {
-            const data = await fetchAPI('top-chats?limit=10');
-            const tbody = document.getElementById('topChatsTable');
+            const data = await fetchAPI('top-chats?limit=5');
+            const container = document.getElementById('topChatsList');
 
             if (data && data.length > 0) {
-                tbody.innerHTML = data.map((chat, index) => `
-                    <tr>
-                        <td><span class="rank">${index + 1}</span></td>
-                        <td><strong>${chat.chat_name}</strong></td>
-                        <td><strong>${chat.play_count.toLocaleString()}</strong> plays</td>
-                    </tr>
+                container.innerHTML = data.map((chat, index) => `
+                    <div class="list-item">
+                        <div class="rank-badge ${getRankClass(index)}">${index + 1}</div>
+                        <div class="item-info">
+                            <div class="item-title">${chat.chat_name}</div>
+                        </div>
+                        <div class="item-value">${formatNumber(chat.play_count)}</div>
+                    </div>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #999;">No data available</td></tr>';
+                container.innerHTML = '<div class="loading-text">No data available</div>';
             }
         }
 
@@ -519,10 +498,8 @@
             btn.classList.remove('spinning');
         }
 
-        // Load data on page load
+        // Initialize
         loadAllData();
-
-        // Auto-refresh every 30 seconds
         setInterval(loadAllData, 30000);
     </script>
 </body>
