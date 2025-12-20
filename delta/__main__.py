@@ -49,7 +49,8 @@ async def main():
         tasks.append(dashboard_task)
         logger.info("📊 Dashboard server task started")
     except ImportError:
-        logger.warning("⚠️ Dashboard module not found, skipping dashboard startup")
+        logger.error("❌ Dashboard module execution failed due to import error:", exc_info=True)
+        # Continue bot startup even if dashboard fails
     except Exception as e:
         logger.error(f"❌ Failed to start dashboard: {e}")
     

@@ -1,16 +1,13 @@
-aiohttp~=3.13.1
+aiohttp~=3.13.2
 kurigram>=2.2.13
 pillow~=12.0.0
-psutil~=7.1.2
+psutil~=7.1.3
 motor>=3.7.1
 pytgcrypto>=1.2.11
 py-tgcalls~=2.2.8
-py-yt-search~=0.5.4
-python-dotenv~=1.1.1
-yt-dlp[default]>=2025.11.12
-
-# Optional: Dashboard Dependencies
-# Install with: pip install -r dashboard/requirements.txt
-# - fastapi>=0.109.0
-# - uvicorn[standard]>=0.27.0
-# - pydantic>=2.5.0
+py-yt-search~=0.5.5
+python-dotenv~=1.2.1
+yt-dlp[default]>=2025.12.8
+fastapi>=0.125.0
+uvicorn[standard]>=0.38.0
+pydantic>=2.12.5
