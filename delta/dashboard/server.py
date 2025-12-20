@@ -11,8 +11,7 @@ from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
-
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -20,6 +19,27 @@ from pydantic import BaseModel
 
 from delta import app as telegram_app
 from delta import config, db, logger
+
+# WebSocket Connection Manager
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: dict):
+        for connection in self.active_connections:
+            try:
+                await connection.send_json(message)
+            except:
+                continue
+
+manager = ConnectionManager()
 
 # Create FastAPI app
 dashboard_app = FastAPI(
@@ -105,7 +125,7 @@ async def get_overview():
         users = await db.get_users()
         chats = await db.get_chats()
         total_plays = await db.get_queries()
-        active_calls = len(db.active_calls)
+        active_calls = await db.active_callsdb.count_documents({})
 
         return StatsOverview(
             total_users=len(users),
@@ -224,12 +244,24 @@ async def get_daily_stats(days: int = 7):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@dashboard_app.get("/api/peak-hours")
+async def get_peak_hours(days: int = 7):
+    """Get peak activity hours"""
+    try:
+        data = await db.get_peak_hours(days=days)
+        return {"data": data}
+    except Exception as e:
+        logger.error(f"Error getting peak hours: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @dashboard_app.get("/api/active-calls")
 async def get_active_calls():
     """Get currently active voice calls"""
     try:
         active = []
-        for chat_id in db.active_calls.keys():
+        active_chats = await db.get_active_calls()
+        for chat_id in active_chats:
             try:
                 chat = await telegram_app.get_chat(chat_id)
                 active.append({
@@ -311,6 +343,58 @@ async def run_dashboard_server(host: str = "0.0.0.0", port: int = 8000):
     
     logger.info(f"📊 Dashboard server starting on http://{host}:{port}")
     await server.serve()
+
+
+@dashboard_app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception:
+        manager.disconnect(websocket)
+
+
+async def broadcast_stats():
+    """Background task to broadcast stats to connected clients"""
+    last_data = {}
+    while True:
+        try:
+            # 1. Overview Stats
+            users_count = len(await db.get_users())
+            chats_count = len(await db.get_chats())
+            plays_count = await db.get_queries()
+            active_calls = await db.active_callsdb.count_documents({})
+            
+            overview = {
+                "type": "overview",
+                "data": {
+                    "total_users": users_count,
+                    "total_chats": chats_count,
+                    "total_plays": plays_count,
+                    "active_calls": active_calls
+                }
+            }
+            
+            # Broadcast if changed (simplistic check, ideally check diff)
+            # For now, just broadcast every 5s to keep alive and ensure sync
+            await manager.broadcast(overview)
+            
+            # 2. Lists (Top Tracks, etc) - Broadcast less frequently or on change?
+            # For simplicity, let's assume lists are heavy and clients can fetch them 
+            # or we broadcast a "refresh" signal
+            
+        except Exception as e:
+            logger.error(f"Error in broadcast task: {e}")
+        
+        await asyncio.sleep(5)
+
+
+@dashboard_app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(broadcast_stats())
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ class MongoDB:
         self.db = self.mongo.Anon
 
         self.admin_list = {}
-        self.active_calls = {}
+        self.active_callsdb = self.db.active_calls
         self.admin_play = []
         self.blacklisted = []
         self.cmd_delete = []
@@ -51,6 +51,7 @@ class MongoDB:
         self.statsdb = self.db.stats
         self.queriesdb = self.db.queries
         self.dailydb = self.db.daily_stats
+        self.hourlydb = self.db.hourly_stats
 
     async def connect(self) -> None:
         """Check if we can connect to the database.
@@ -72,19 +73,34 @@ class MongoDB:
         logger.info("Database connection closed.")
 
     # CACHE
+    # CACHE
     async def get_call(self, chat_id: int) -> bool:
-        return chat_id in self.active_calls
+        doc = await self.active_callsdb.find_one({"_id": chat_id})
+        return bool(doc)
 
     async def add_call(self, chat_id: int) -> None:
-        self.active_calls[chat_id] = 1
+        await self.active_callsdb.update_one(
+            {"_id": chat_id},
+            {"$set": {"playing": 1}},
+            upsert=True
+        )
 
     async def remove_call(self, chat_id: int) -> None:
-        self.active_calls.pop(chat_id, None)
+        await self.active_callsdb.delete_one({"_id": chat_id})
 
     async def playing(self, chat_id: int, paused: bool = None) -> bool | None:
         if paused is not None:
-            self.active_calls[chat_id] = int(not paused)
-        return bool(self.active_calls[chat_id])
+            await self.active_callsdb.update_one(
+                {"_id": chat_id},
+                {"$set": {"playing": int(not paused)}},
+                upsert=True
+            )
+        doc = await self.active_callsdb.find_one({"_id": chat_id})
+        return bool(doc and doc.get("playing"))
+
+    async def get_active_calls(self) -> list:
+        """Get list of active chat IDs."""
+        return [doc["_id"] async for doc in self.active_callsdb.find()]
 
     async def get_admins(self, chat_id: int, reload: bool = False) -> list[int]:
         from delta.helpers._admins import reload_admins
@@ -462,6 +478,14 @@ class MongoDB:
             upsert=True
         )
 
+        # Add to hourly stats (Peak Hours)
+        current_hour = datetime.now().hour # 0-23
+        await self.hourlydb.update_one(
+            {"_id": today},
+            {"$inc": {f"hours.{current_hour}": 1}},
+            upsert=True
+        )
+
     async def get_global_tops(self, limit: int = 10) -> dict:
         """Get top tracks globally."""
         # Filter out Live streams and Unknown duration
@@ -586,6 +610,29 @@ class MongoDB:
             })
             
         return results[::-1]  # Return chronologically (oldest first)
+
+    async def get_peak_hours(self, days: int = 7) -> list:
+        """Get aggregated play counts per hour (0-23) for the last N days."""
+        from datetime import datetime, timedelta
+        
+        # Initialize 24 hours with 0
+        hourly_counts = [0] * 24
+        
+        today = datetime.now()
+        for i in range(days):
+            date = (today - timedelta(days=i)).strftime("%Y-%m-%d")
+            doc = await self.hourlydb.find_one({"_id": date})
+            if doc and "hours" in doc:
+                hours_data = doc["hours"]
+                for hour, count in hours_data.items():
+                    try:
+                        h = int(hour)
+                        if 0 <= h < 24:
+                            hourly_counts[h] += count
+                    except:
+                        pass
+        
+        return hourly_counts
 
     # USER PLAYLIST METHODS
     async def add_to_playlist(self, user_id: int, track_id: str, title: str, duration: str, url: str) -> bool:

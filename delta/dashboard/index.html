@@ -370,6 +370,79 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            /* Reduced specific height */
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid var(--tg-theme-secondary-bg-color, #c8c7cc);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            border: none;
+            background: none;
+            color: var(--tg-theme-hint-color, #8e8e93);
+            font-size: 10px;
+            cursor: pointer;
+            padding: 4px 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item.active {
+            color: var(--tg-theme-button-color, #007aff);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .tab-content {
+            display: none;
+            padding-bottom: 60px;
+            /* Space for bottom nav */
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Adjust body padding */
+        body {
+            padding-bottom: 80px;
+        }
+
+        /* Floating Refresh Button - Move up */
+        .fab {
+            bottom: 70px;
+        }
     </style>
 </head>
 
@@ -382,50 +455,83 @@
 
         <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌓</button>
 
-        <div class="section-title">Overview</div>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-value" id="totalUsers">-</div>
-                <div class="stat-label">Users</div>
+        <!-- Tab 1: Home -->
+        <div id="tab-home" class="tab-content active">
+            <div class="section-title">Overview</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalUsers">-</div>
+                    <div class="stat-label">Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalChats">-</div>
+                    <div class="stat-label">Groups</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalPlays">-</div>
+                    <div class="stat-label">Plays</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="activeCalls">-</div>
+                    <div class="stat-label">Calls</div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="totalChats">-</div>
-                <div class="stat-label">Groups</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="totalPlays">-</div>
-                <div class="stat-label">Plays</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="activeCalls">-</div>
-                <div class="stat-label">Calls</div>
+
+            <div class="section-title">Peak Usage (Last 7 Days)</div>
+            <div class="card">
+                <div class="chart-container">
+                    <canvas id="peakChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <div class="section-title">Activity Trend</div>
-        <div class="card">
-            <div class="chart-container">
-                <canvas id="dailyChart"></canvas>
+        <!-- Tab 2: Analytics -->
+        <div id="tab-analytics" class="tab-content">
+            <div class="section-title">Activity Trend</div>
+            <div class="card">
+                <div class="chart-container">
+                    <canvas id="dailyChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <div class="section-title">Top Tracks</div>
-        <div class="card scrollable-card" id="topTracksList">
-            <div class="status-text">Loading...</div>
-        </div>
+        <!-- Tab 3: Rankings -->
+        <div id="tab-rankings" class="tab-content">
+            <div class="section-title">Top Tracks</div>
+            <div class="card scrollable-card" id="topTracksList">
+                <div class="status-text">Loading...</div>
+            </div>
 
-        <div class="section-title">Most Active Users</div>
-        <div class="card" id="topUsersList">
-            <div class="status-text">Loading...</div>
-        </div>
+            <div class="section-title">Most Active Users</div>
+            <div class="card" id="topUsersList">
+                <div class="status-text">Loading...</div>
+            </div>
 
-        <div class="section-title">Top Groups</div>
-        <div class="card" id="topChatsList">
-            <div class="status-text">Loading...</div>
+            <div class="section-title">Top Groups</div>
+            <div class="card" id="topChatsList">
+                <div class="status-text">Loading...</div>
+            </div>
         </div>
     </div>
 
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('home')">
+            <div class="nav-icon">🏠</div>
+            <div>Home</div>
+        </button>
+        <button class="nav-item" onclick="switchTab('analytics')">
+            <div class="nav-icon">📊</div>
+            <div>Analytics</div>
+        </button>
+        <button class="nav-item" onclick="switchTab('rankings')">
+            <div class="nav-icon">🏆</div>
+            <div>Rankings</div>
+        </button>
+    </nav>
+
     <button class="fab" onclick="loadAllData()">↻</button>
+
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
@@ -433,30 +539,41 @@
         let dailyChart = null;
         let tg = window.Telegram.WebApp;
 
-        function initApp() {
-            if (tg) {
-                tg.ready();
-                tg.expand();
-            }
+        function switchTab(tabId) {
+            // Update Tab Content
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(`tab-${tabId}`).classList.add('active');
 
-            // Check saved theme
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
-                document.getElementById('themeBtn').textContent = '☀️';
-            } else if (savedTheme === 'light') {
-                document.body.classList.remove('dark-theme');
-                document.getElementById('themeBtn').textContent = '🌙';
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                // Auto detect
-                document.body.classList.add('dark-theme');
-                document.getElementById('themeBtn').textContent = '☀️';
-            } else {
-                document.getElementById('themeBtn').textContent = '🌙';
-            }
+            // Update Nav Buttons
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            // Find the button that calls this tab (simple approximation)
+            event.currentTarget.classList.add('active'); // Warning: relies on event bubbling, might need cleaner selection
 
-            loadAllData();
-            setInterval(loadAllData, 30000);
+            // Persist
+            localStorage.setItem('activeTab', tabId);
+        }
+
+        // Init Tab
+        const savedTab = localStorage.getItem('activeTab');
+        if (savedTab) {
+            // We need to manually trigger the switch safely
+            // Wait for DOM or just apply classes manually if called early
+            // Simple hack: mimic click or just manual class set
+            // Let's do manual class set to avoid event issues in init
+            const tabEl = document.getElementById(`tab-${savedTab}`);
+            if (tabEl) {
+                document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+                tabEl.classList.add('active');
+
+                document.querySelectorAll('.nav-item').forEach(e => {
+                    e.classList.remove('active');
+                    if (e.getAttribute('onclick').includes(savedTab)) e.classList.add('active');
+                });
+            }
         }
 
         function toggleTheme() {
@@ -475,6 +592,7 @@
 
             // Reload chart to update colors
             loadChart();
+            loadPeakHours();
         }
 
         async function fetchAPI(endpoint) {
@@ -550,6 +668,56 @@
             });
         }
 
+        let peakChart = null;
+        async function loadPeakHours() {
+            const data = await fetchAPI('peak-hours?days=7');
+            if (!data) return;
+
+            const ctx = document.getElementById('peakChart');
+            const labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+            const values = data.data;
+
+            if (peakChart) peakChart.destroy();
+
+            const style = getComputedStyle(document.body);
+            // Use a different color or same theme color
+            const barColor = style.getPropertyValue('--tg-theme-button-color').trim() || '#007aff';
+            const gridColor = style.getPropertyValue('--tg-theme-hint-color').trim() || '#8e8e93';
+
+            peakChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Plays',
+                        data: values,
+                        backgroundColor: barColor,
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: gridColor,
+                                font: { size: 9 },
+                                maxTicksLimit: 12
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(128,128,128,0.1)', borderDash: [5, 5] },
+                            ticks: { color: gridColor, font: { size: 10 }, maxTicksLimit: 5 }
+                        }
+                    }
+                }
+            });
+        }
+
         function renderList(containerId, data, titleKey, subtitleKey, valueKey, type) {
             const container = document.getElementById(containerId);
             if (!data || data.length === 0) {
@@ -612,13 +780,62 @@
             renderList('topChatsList', chats, 'chat_name', null, 'play_count', 'chat');
         }
 
+        let ws = null;
+        let reconnectInterval = null;
+
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function () {
+                console.log('Connected to WebSocket');
+                if (reconnectInterval) {
+                    clearInterval(reconnectInterval);
+                    reconnectInterval = null;
+                }
+            };
+
+            ws.onmessage = function (event) {
+                try {
+                    const message = JSON.parse(event.data);
+                    if (message.type === 'overview') {
+                        updateOverview(message.data);
+                    }
+                } catch (e) {
+                    console.error('Error parsing WS message:', e);
+                }
+            };
+
+            ws.onclose = function () {
+                console.log('WebSocket disconnected');
+                if (!reconnectInterval) {
+                    reconnectInterval = setInterval(connectWebSocket, 3000);
+                }
+            };
+
+            ws.onerror = function (err) {
+                console.error('WebSocket error:', err);
+                ws.close();
+            };
+        }
+
+        function updateOverview(data) {
+            document.getElementById('totalUsers').textContent = formatNumber(data.total_users);
+            document.getElementById('totalChats').textContent = formatNumber(data.total_chats);
+            document.getElementById('totalPlays').textContent = formatNumber(data.total_plays);
+            document.getElementById('activeCalls').textContent = formatNumber(data.active_calls);
+        }
+
         async function loadAllData() {
             const fab = document.querySelector('.fab');
             fab.classList.add('spin');
 
             await Promise.all([
-                loadOverview(),
+                loadOverview(), // Initial load
                 loadChart(),
+                loadPeakHours(),
                 loadLists()
             ]);
 
@@ -626,6 +843,31 @@
         }
 
         // Start
+        function initApp() {
+            if (tg) {
+                tg.ready();
+                tg.expand();
+            }
+
+            // Theme init...
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeBtn').textContent = '☀️';
+            } else if (savedTheme === 'light') {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('themeBtn').textContent = '🌙';
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeBtn').textContent = '☀️';
+            } else {
+                document.getElementById('themeBtn').textContent = '🌙';
+            }
+
+            loadAllData();
+            connectWebSocket(); // Start WS connection
+        }
+
         initApp();
     </script>
 </body>
