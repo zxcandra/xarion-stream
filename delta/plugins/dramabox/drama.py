@@ -520,7 +520,6 @@ async def drama_download_callback(_, callback: types.CallbackQuery):
             document=local_path,
             caption=f"🎬 <b>{drama_title}</b>\n📺 {episode.chapter_name}\n💿 {quality}",
             file_name=filename,
-            thumb=episode.thumbnail if episode.thumbnail else None,
             parse_mode=enums.ParseMode.HTML
         )
         
