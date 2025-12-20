@@ -5,6 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DeltaMusic Statistics</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#efeff4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/musical-notes.png">
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -16,6 +24,40 @@
             --tg-theme-button-text-color: #ffffff;
             --tg-theme-secondary-bg-color: #efeff4;
             --tg-theme-header-bg-color: #efeff4;
+        }
+
+        body.dark-theme {
+            --tg-theme-bg-color: #1c1c1e;
+            --tg-theme-text-color: #ffffff;
+            --tg-theme-secondary-bg-color: #000000;
+            --tg-theme-hint-color: #98989d;
+            --tg-theme-button-color: #0a84ff;
+            --tg-theme-header-bg-color: #000000;
+            --tg-theme-button-text-color: #ffffff;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
         }
 
         body {
@@ -338,6 +380,8 @@
             <p>Statistics Dashboard</p>
         </div>
 
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌓</button>
+
         <div class="section-title">Overview</div>
         <div class="stats-grid">
             <div class="stat-item">
@@ -394,8 +438,43 @@
                 tg.ready();
                 tg.expand();
             }
+
+            // Check saved theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeBtn').textContent = '☀️';
+            } else if (savedTheme === 'light') {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('themeBtn').textContent = '🌙';
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // Auto detect
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeBtn').textContent = '☀️';
+            } else {
+                document.getElementById('themeBtn').textContent = '🌙';
+            }
+
             loadAllData();
             setInterval(loadAllData, 30000);
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('themeBtn');
+
+            if (body.classList.contains('dark-theme')) {
+                body.classList.remove('dark-theme');
+                btn.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-theme');
+                btn.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+
+            // Reload chart to update colors
+            loadChart();
         }
 
         async function fetchAPI(endpoint) {

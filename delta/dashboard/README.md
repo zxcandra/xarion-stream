@@ -39,13 +39,31 @@ Navigate to: **http://localhost:8000**
 | Feature | Description |
 |---------|-------------|
 | 📈 **Live Charts** | Interactive play count trends |
-| 🏆 **Top Tracks** | Most played songs globally |
-| 👥 **Active Users** | User leaderboard |
+| 🏆 **Top Tracks** | Most played songs (YouTube only) |
+| 👥 **Active Users** | User leaderboard with avatars |
 | 💬 **Group Rankings** | Most active groups |
-| 🔊 **Live Monitoring** | Active voice calls |
-| 📱 **Responsive** | Works on all devices |
-| 🎨 **Modern UI** | Glassmorphism design |
+| � **Telegram UI** | Native iOS-style grouped list design |
+| 🔍 **Smart Filtering** | Auto-hides Live & Files from top lists |
+| � **Scrollable** | Optimized lists for 100+ items |
+| 🎨 **Modern Design** | Beautiful gradients & glassmorphism |
 | 🔄 **Auto-Refresh** | Real-time updates |
+
+---
+
+## 🧠 Stats Logic & Filtering
+
+The dashboard employs smart filtering to keep lists clean and relevant:
+
+### 🎵 Top Tracks Logic
+- **Music Only:** The main "Top Tracks" list **only** displays formatted music tracks (usually from YouTube).
+- **Excluded Content:**
+  - 🎥 **Live Streams:** Tracks with duration "Live" or "Unknown" are automatically hidden.
+  - 📁 **Files:** Local Telegram audio files (which lack thumbnails) are excluded from the visual leaderboard.
+  - ⚡ **Stream Type:** Database stores specific `stream_type` (`music`, `live`, `file`) for precise categorization.
+
+### 👥 User & Group Logic
+- **Avatars:** Uses a smart placeholder system with colored initials if no photo URL is available, ensuring fast load times.
+- **Scrollable Lists:** "Top Tracks" supports infinite scrolling up to 100 items.
 
 ---
 
@@ -53,28 +71,25 @@ Navigate to: **http://localhost:8000**
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│        🎵 DeltaMusic Dashboard                          │
-│           Real-time Statistics & Analytics              │
-└─────────────────────────────────────────────────────────┘
-
-┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-│👥        │ │💬        │ │🎵        │ │🔊        │
-│Users     │ │Groups    │ │Plays     │ │Active    │
-│1,234     │ │56        │ │98,765    │ │3         │
-└──────────┘ └──────────┘ └──────────┘ └──────────┘
-
-┌─────────────────────────────────────────────────────────┐
-│  📈 Play Count Trend (Last 7 Days)                      │
-│  [Beautiful animated line chart with gradient fill]     │
-└─────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────┐
-│  🏆 Top Tracks                                          │
-│  ┌───┬──────────────────────────┬────────┬──────────┐  │
-│  │ 1 │ Attention - Charlie Puth │ 3:33   │ 420 plays│  │
-│  │ 2 │ Blinding Lights - Weeknd │ 3:22   │ 380 plays│  │
-│  │ 3 │ Shape of You - Ed Sheeran│ 3:54   │ 350 plays│  │
-│  └───┴──────────────────────────┴────────┴──────────┘  │
+│  Stats Dashboard                                        │
+│  [ Header Gradient with Totals ]                        │
+│                                                         │
+│  [ Play Count Trend Chart ]                             │
+│                                                         │
+│  TOP TRACKS (Scrollable)                                │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │ 1. Attention                  420 plays [>]       │  │
+│  │    3:33                                           │  │
+│  │ ───────────────────────────────────────────────── │  │
+│  │ 2. Blinding Lights            380 plays [>]       │  │
+│  │    3:22                                           │  │
+│  └───────────────────────────────────────────────────┘  │
+│                                                         │
+│  TOP USERS                                              │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │ [A] User A                    150 plays           │  │
+│  │     ID: 12345                                     │  │
+│  └───────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
 ```
 

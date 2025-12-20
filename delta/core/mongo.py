@@ -423,11 +423,12 @@ class MongoDB:
         await self.pm_messagesdb.delete_one({"_id": "custom_messages"})
 
     # STATS TRACKING METHODS
-    async def add_stats(self, track_id: str, title: str, duration: str, user_id: int, chat_id: int, thumbnail: str = None) -> None:
+    async def add_stats(self, track_id: str, title: str, duration: str, user_id: int, chat_id: int, thumbnail: str = None, stream_type: str = "music") -> None:
         """Add or update play statistics."""
         update_data = {
             "title": title, 
-            "duration": duration
+            "duration": duration,
+            "stream_type": stream_type
         }
         if thumbnail:
             update_data["thumbnail"] = thumbnail
@@ -463,7 +464,15 @@ class MongoDB:
 
     async def get_global_tops(self, limit: int = 10) -> dict:
         """Get top tracks globally."""
-        cursor = self.statsdb.find().sort("count", -1).limit(limit)
+        # Filter out Live streams and Unknown duration
+        query = {
+            "duration": {
+                "$nin": ["Live", "Unknown"],
+                "$not": {"$regex": "^Stream|Live$", "$options": "i"}
+            },
+            "thumbnail": {"$exists": True, "$ne": None}
+        }
+        cursor = self.statsdb.find(query).sort("count", -1).limit(limit)
         results = {}
         async for doc in cursor:
             results[doc["_id"]] = {
@@ -515,9 +524,15 @@ class MongoDB:
 
     async def get_group_stats(self, chat_id: int, limit: int = 10) -> dict:
         """Get top tracks for a specific group."""
-        cursor = self.statsdb.find(
-            {f"chats.{chat_id}": {"$exists": True}}
-        ).sort(f"chats.{chat_id}", -1).limit(limit)
+        query = {
+            f"chats.{chat_id}": {"$exists": True},
+            "duration": {
+                "$nin": ["Live", "Unknown"],
+                "$not": {"$regex": "^Stream|Live$", "$options": "i"}
+            },
+            "thumbnail": {"$exists": True, "$ne": None}
+        }
+        cursor = self.statsdb.find(query).sort(f"chats.{chat_id}", -1).limit(limit)
         results = {}
         async for doc in cursor:
             chats = doc.get("chats", {})

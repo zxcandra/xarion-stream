@@ -90,6 +90,14 @@ async def read_miniapp():
         return HTMLResponse(content=f.read())
 
 
+@dashboard_app.get("/manifest.json")
+async def read_manifest():
+    """Serve the PWA Manifest"""
+    manifest_path = Path(__file__).parent / "manifest.json"
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read(), media_type="application/json")
+
+
 @dashboard_app.get("/api/overview", response_model=StatsOverview)
 async def get_overview():
     """Get overall statistics overview"""

@@ -101,13 +101,20 @@ class TgCall(PyTgCalls):
                 
                 # Track stats
                 try:
+                    stream_type = "file"
+                    if isinstance(media, Track):
+                        stream_type = "music"
+                        if media.duration in ["Unknown", "Live"] or "Stream" in media.duration:
+                             stream_type = "live"
+
                     await db.add_stats(
                         track_id=media.id,
                         title=media.title,
                         duration=media.duration,
                         user_id=media.user_id or message.from_user.id,
                         chat_id=chat_id,
-                        thumbnail=media.thumbnail if hasattr(media, 'thumbnail') else None
+                        thumbnail=media.thumbnail if hasattr(media, 'thumbnail') else None,
+                        stream_type=stream_type
                     )
                     await db.increment_queries()
                 except:
