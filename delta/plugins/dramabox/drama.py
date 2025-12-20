@@ -444,6 +444,10 @@ async def drama_stream_callback(_, callback: types.CallbackQuery):
 @app.on_callback_query(filters.regex(r"^drama_download:"))
 async def drama_download_callback(_, callback: types.CallbackQuery):
     """Mengunduh episode drama."""
+    import aiohttp
+    import os
+    import asyncio
+    
     parts = callback.data.split(":")
     book_id = parts[1]
     ep_index = int(parts[2])
@@ -474,20 +478,64 @@ async def drama_download_callback(_, callback: types.CallbackQuery):
     # Bersihkan filename
     safe_title = "".join(x for x in drama_title if x.isalnum() or x in [' ', '-', '_']).strip()
     safe_ep = "".join(x for x in episode.chapter_name if x.isalnum() or x in [' ', '-', '_']).strip()
-    filename = f"{safe_title} - {safe_ep}.mp4"
+    filename = f"{safe_title} - {safe_ep} - {quality}.mp4"
     
-    msg = await callback.message.reply_text(f"⬇️ <b>Mengunduh...</b>\n\n🎬 {drama_title}\n📺 {episode.chapter_name}", parse_mode=enums.ParseMode.HTML)
+    msg = await callback.message.reply_text(f"⬇️ <b>Mengunduh...</b>\n\n🎬 {drama_title}\n📺 {episode.chapter_name}\n\n⏳ Mohon tunggu, ini mungkin memakan waktu...", parse_mode=enums.ParseMode.HTML)
+    
+    # Download file locally first
+    downloads_dir = "downloads"
+    os.makedirs(downloads_dir, exist_ok=True)
+    local_path = os.path.join(downloads_dir, filename)
     
     try:
+        # Download dari URL
+        async with aiohttp.ClientSession() as session:
+            async with session.get(video_url) as response:
+                if response.status != 200:
+                    raise Exception(f"HTTP {response.status}")
+                
+                total_size = int(response.headers.get('content-length', 0))
+                downloaded = 0
+                
+                with open(local_path, 'wb') as f:
+                    async for chunk in response.content.iter_chunked(1024 * 1024):  # 1MB chunks
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        
+                        # Update progress every 10MB
+                        if downloaded % (10 * 1024 * 1024) < 1024 * 1024:
+                            progress = (downloaded / total_size * 100) if total_size > 0 else 0
+                            try:
+                                await msg.edit_text(
+                                    f"⬇️ <b>Mengunduh...</b>\n\n🎬 {drama_title}\n📺 {episode.chapter_name}\n\n📊 Progress: {progress:.1f}%",
+                                    parse_mode=enums.ParseMode.HTML
+                                )
+                            except:
+                                pass
+        
+        # Upload ke Telegram
+        await msg.edit_text(f"⬆️ <b>Mengirim ke Telegram...</b>\n\n🎬 {drama_title}\n📺 {episode.chapter_name}", parse_mode=enums.ParseMode.HTML)
+        
         await callback.message.reply_document(
-            document=video_url,
+            document=local_path,
             caption=f"🎬 <b>{drama_title}</b>\n📺 {episode.chapter_name}\n💿 {quality}",
             file_name=filename,
-            thumb=episode.thumbnail if episode.thumbnail else None
+            thumb=episode.thumbnail if episode.thumbnail else None,
+            parse_mode=enums.ParseMode.HTML
         )
+        
         await msg.delete()
+        
     except Exception as e:
         await msg.edit_text(f"❌ <b>Gagal mengirim file.</b>\n\nError: {str(e)}", parse_mode=enums.ParseMode.HTML)
+    finally:
+        # Cleanup
+        if os.path.exists(local_path):
+            try:
+                os.remove(local_path)
+            except:
+                pass
+
 
 
 
