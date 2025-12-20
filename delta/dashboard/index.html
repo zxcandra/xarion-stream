@@ -459,6 +459,34 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .server-status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .server-status-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--tg-theme-secondary-bg-color, #efeff4);
+            border-radius: 8px;
+        }
+
+        .status-label {
+            font-size: 13px;
+            color: var(--tg-theme-hint-color);
+            font-weight: 500;
+        }
+
         .status-right {
             display: flex;
             align-items: center;
@@ -528,363 +556,364 @@
 
             <div class="section-title">Server Status</div>
             <div class="card">
-                <div class="status-row">
-                    <div class="status-label">CPU</div>
-                    <div class="status-right">
-                        <div class="status-bar-container">
-                            <div class="status-bar-fill" id="cpuBar" style="width: 0%"></div>
+                <div class="server-status-grid">
+                    <div class="status-row">
+                        <div class="status-label">CPU</div>
+                        <div class="status-right">
+                            <div class="status-bar-container">
+                                <div class="status-bar-fill" id="cpuBar" style="width: 0%"></div>
+                            </div>
+                            <div class="status-value-text" id="cpuText">-</div>
                         </div>
-                        <div class="status-value-text" id="cpuText">-</div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-label">RAM</div>
+                        <div class="status-right">
+                            <div class="status-bar-container">
+                                <div class="status-bar-fill" id="ramBar" style="width: 0%"></div>
+                            </div>
+                            <div class="status-value-text" id="ramText">-</div>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-label">Disk</div>
+                        <div class="status-right">
+                            <div class="status-bar-container">
+                                <div class="status-bar-fill" id="diskBar" style="width: 0%"></div>
+                            </div>
+                            <div class="status-value-text" id="diskText">-</div>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-label">Uptime</div>
+                        <div class="status-value-text" style="width: auto;" id="uptimeText">-</div>
                     </div>
                 </div>
-                <div class="status-row">
-                    <div class="status-label">RAM</div>
-                    <div class="status-right">
-                        <div class="status-bar-container">
-                            <div class="status-bar-fill" id="ramBar" style="width: 0%"></div>
-                        </div>
-                        <div class="status-value-text" id="ramText">-</div>
+
+                <div class="section-title">Peak Usage (Last 7 Days)</div>
+                <div class="card">
+                    <div class="chart-container">
+                        <canvas id="peakChart"></canvas>
                     </div>
-                </div>
-                <div class="status-row">
-                    <div class="status-label">Disk</div>
-                    <div class="status-right">
-                        <div class="status-bar-container">
-                            <div class="status-bar-fill" id="diskBar" style="width: 0%"></div>
-                        </div>
-                        <div class="status-value-text" id="diskText">-</div>
-                    </div>
-                </div>
-                <div class="status-row">
-                    <div class="status-label">Uptime</div>
-                    <div class="status-value-text" style="width: auto;" id="uptimeText">-</div>
                 </div>
             </div>
 
-            <div class="section-title">Peak Usage (Last 7 Days)</div>
-            <div class="card">
-                <div class="chart-container">
-                    <canvas id="peakChart"></canvas>
+            <!-- Tab 2: Analytics -->
+            <div id="tab-analytics" class="tab-content">
+                <div class="section-title">Activity Trend</div>
+                <div class="card">
+                    <div class="chart-container">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="section-title">Platform Distribution</div>
+                <div class="card">
+                    <div class="chart-container">
+                        <canvas id="platformChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="section-title">Network Activity (Real-time)</div>
+                <div class="card">
+                    <div class="chart-container">
+                        <canvas id="networkRealtimeChart"></canvas>
+                    </div>
+                    <div class="network-stats">
+                        <div class="network-stat-item">
+                            <div class="network-stat-label">↑ Total Upload</div>
+                            <div class="network-stat-value" id="totalUpload">-</div>
+                        </div>
+                        <div class="network-stat-item">
+                            <div class="network-stat-label">↓ Total Download</div>
+                            <div class="network-stat-value" id="totalDownload">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Rankings -->
+            <div id="tab-rankings" class="tab-content">
+                <div class="section-title">Top Plays</div>
+                <div class="card scrollable-card" id="topTracksList">
+                    <div class="status-text">Loading...</div>
+                </div>
+
+                <div class="section-title">Most Active Users</div>
+                <div class="card" id="topUsersList">
+                    <div class="status-text">Loading...</div>
+                </div>
+
+                <div class="section-title">Top Groups</div>
+                <div class="card" id="topChatsList">
+                    <div class="status-text">Loading...</div>
                 </div>
             </div>
         </div>
 
-        <!-- Tab 2: Analytics -->
-        <div id="tab-analytics" class="tab-content">
-            <div class="section-title">Activity Trend</div>
-            <div class="card">
-                <div class="chart-container">
-                    <canvas id="dailyChart"></canvas>
-                </div>
-            </div>
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('home')">
+                <div class="nav-icon">🏠</div>
+                <div>Home</div>
+            </button>
+            <button class="nav-item" onclick="switchTab('analytics')">
+                <div class="nav-icon">📊</div>
+                <div>Analytics</div>
+            </button>
+            <button class="nav-item" onclick="switchTab('rankings')">
+                <div class="nav-icon">🏆</div>
+                <div>Rankings</div>
+            </button>
+        </nav>
 
-            <div class="section-title">Platform Distribution</div>
-            <div class="card">
-                <div class="chart-container">
-                    <canvas id="platformChart"></canvas>
-                </div>
-            </div>
-
-            <div class="section-title">Network Activity (Real-time)</div>
-            <div class="card">
-                <div class="chart-container">
-                    <canvas id="networkRealtimeChart"></canvas>
-                </div>
-                <div class="network-stats">
-                    <div class="network-stat-item">
-                        <div class="network-stat-label">↑ Total Upload</div>
-                        <div class="network-stat-value" id="totalUpload">-</div>
-                    </div>
-                    <div class="network-stat-item">
-                        <div class="network-stat-label">↓ Total Download</div>
-                        <div class="network-stat-value" id="totalDownload">-</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab 3: Rankings -->
-        <div id="tab-rankings" class="tab-content">
-            <div class="section-title">Top Plays</div>
-            <div class="card scrollable-card" id="topTracksList">
-                <div class="status-text">Loading...</div>
-            </div>
-
-            <div class="section-title">Most Active Users</div>
-            <div class="card" id="topUsersList">
-                <div class="status-text">Loading...</div>
-            </div>
-
-            <div class="section-title">Top Groups</div>
-            <div class="card" id="topChatsList">
-                <div class="status-text">Loading...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('home')">
-            <div class="nav-icon">🏠</div>
-            <div>Home</div>
-        </button>
-        <button class="nav-item" onclick="switchTab('analytics')">
-            <div class="nav-icon">📊</div>
-            <div>Analytics</div>
-        </button>
-        <button class="nav-item" onclick="switchTab('rankings')">
-            <div class="nav-icon">🏆</div>
-            <div>Rankings</div>
-        </button>
-    </nav>
-
-    <button class="fab" onclick="loadAllData()">↻</button>
+        <button class="fab" onclick="loadAllData()">↻</button>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script>
-        const API_BASE = window.location.origin;
-        let dailyChart = null;
-        let tg = window.Telegram.WebApp;
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+        <script>
+            const API_BASE = window.location.origin;
+            let dailyChart = null;
+            let tg = window.Telegram.WebApp;
 
-        function switchTab(tabId) {
-            // Update Tab Content
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.remove('active');
-            });
-            document.getElementById(`tab-${tabId}`).classList.add('active');
+            function switchTab(tabId) {
+                // Update Tab Content
+                document.querySelectorAll('.tab-content').forEach(el => {
+                    el.classList.remove('active');
+                });
+                document.getElementById(`tab-${tabId}`).classList.add('active');
 
-            // Update Nav Buttons
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.remove('active');
-            });
-            // Find the button that calls this tab (simple approximation)
-            event.currentTarget.classList.add('active'); // Warning: relies on event bubbling, might need cleaner selection
+                // Update Nav Buttons
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.classList.remove('active');
+                });
+                // Find the button that calls this tab (simple approximation)
+                event.currentTarget.classList.add('active'); // Warning: relies on event bubbling, might need cleaner selection
 
-            // Persist
-            localStorage.setItem('activeTab', tabId);
-        }
+                // Persist
+                localStorage.setItem('activeTab', tabId);
+            }
 
-        // Init Tab
-        const savedTab = localStorage.getItem('activeTab');
-        if (savedTab) {
-            // We need to manually trigger the switch safely
-            // Wait for DOM or just apply classes manually if called early
-            // Simple hack: mimic click or just manual class set
-            // Let's do manual class set to avoid event issues in init
-            const tabEl = document.getElementById(`tab-${savedTab}`);
-            if (tabEl) {
-                document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
-                tabEl.classList.add('active');
+            // Init Tab
+            const savedTab = localStorage.getItem('activeTab');
+            if (savedTab) {
+                // We need to manually trigger the switch safely
+                // Wait for DOM or just apply classes manually if called early
+                // Simple hack: mimic click or just manual class set
+                // Let's do manual class set to avoid event issues in init
+                const tabEl = document.getElementById(`tab-${savedTab}`);
+                if (tabEl) {
+                    document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+                    tabEl.classList.add('active');
 
-                document.querySelectorAll('.nav-item').forEach(e => {
-                    e.classList.remove('active');
-                    if (e.getAttribute('onclick').includes(savedTab)) e.classList.add('active');
+                    document.querySelectorAll('.nav-item').forEach(e => {
+                        e.classList.remove('active');
+                        if (e.getAttribute('onclick').includes(savedTab)) e.classList.add('active');
+                    });
+                }
+            }
+
+            // SVG Icons
+            const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41"/></svg>`;
+            const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+
+            function toggleTheme() {
+                const body = document.body;
+                const btn = document.getElementById('themeBtn');
+
+                // Add rotation animation
+                btn.classList.add('rotating');
+
+                setTimeout(() => {
+                    if (body.classList.contains('dark-theme')) {
+                        body.classList.remove('dark-theme');
+                        btn.innerHTML = moonIcon;
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        body.classList.add('dark-theme');
+                        btn.innerHTML = sunIcon;
+                        localStorage.setItem('theme', 'dark');
+                    }
+
+                    // Remove rotation class after animation
+                    setTimeout(() => btn.classList.remove('rotating'), 500);
+
+                    // Reload chart to update colors
+                    loadChart();
+                    loadPeakHours();
+                    loadPlatformDistribution();
+                }, 250);
+            }
+
+            function formatBytes(bytes) {
+                if (!bytes || bytes === 0) return '0 B';
+                const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const k = 1024;
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + units[i];
+            }
+
+            async function fetchAPI(endpoint) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/${endpoint}`);
+                    if (!response.ok) throw new Error('API Error');
+                    return await response.json();
+                } catch (error) {
+                    console.error(error);
+                    return null;
+                }
+            }
+
+            function formatNumber(num) {
+                return new Intl.NumberFormat('id-ID').format(num);
+            }
+
+            async function loadOverview() {
+                const data = await fetchAPI('overview');
+                if (data) {
+                    document.getElementById('totalUsers').textContent = formatNumber(data.total_users);
+                    document.getElementById('totalChats').textContent = formatNumber(data.total_chats);
+                    document.getElementById('totalPlays').textContent = formatNumber(data.total_plays);
+                    document.getElementById('activeCalls').textContent = formatNumber(data.active_calls);
+                }
+            }
+
+            async function loadChart() {
+                const data = await fetchAPI('daily-stats?days=7');
+                if (!data) return;
+
+                const ctx = document.getElementById('dailyChart');
+                const labels = data.map(d => new Date(d.date).toLocaleDateString('id-ID', { weekday: 'short' }));
+                const values = data.map(d => d.play_count);
+
+                if (dailyChart) dailyChart.destroy();
+
+                // Use Telegram theme color for the chart line
+                const style = getComputedStyle(document.body);
+                const lineColor = style.getPropertyValue('--tg-theme-button-color').trim() || '#007aff';
+                const gridColor = style.getPropertyValue('--tg-theme-hint-color').trim() || '#8e8e93';
+
+                dailyChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Plays',
+                            data: values,
+                            borderColor: lineColor,
+                            backgroundColor: lineColor,
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: style.getPropertyValue('--tg-theme-bg-color').trim(),
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: gridColor, font: { size: 10 } }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(128,128,128,0.1)', borderDash: [5, 5] },
+                                ticks: { color: gridColor, font: { size: 10 }, maxTicksLimit: 5 }
+                            }
+                        }
+                    }
                 });
             }
-        }
 
-        // SVG Icons
-        const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41"/></svg>`;
-        const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+            let peakChart = null;
+            async function loadPeakHours() {
+                const data = await fetchAPI('peak-hours?days=7');
+                if (!data) return;
 
-        function toggleTheme() {
-            const body = document.body;
-            const btn = document.getElementById('themeBtn');
+                const ctx = document.getElementById('peakChart');
+                const labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+                const values = data.data;
 
-            // Add rotation animation
-            btn.classList.add('rotating');
+                if (peakChart) peakChart.destroy();
 
-            setTimeout(() => {
-                if (body.classList.contains('dark-theme')) {
-                    body.classList.remove('dark-theme');
-                    btn.innerHTML = moonIcon;
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    body.classList.add('dark-theme');
-                    btn.innerHTML = sunIcon;
-                    localStorage.setItem('theme', 'dark');
-                }
+                const style = getComputedStyle(document.body);
+                // Use a different color or same theme color
+                const barColor = style.getPropertyValue('--tg-theme-button-color').trim() || '#007aff';
+                const gridColor = style.getPropertyValue('--tg-theme-hint-color').trim() || '#8e8e93';
 
-                // Remove rotation class after animation
-                setTimeout(() => btn.classList.remove('rotating'), 500);
-
-                // Reload chart to update colors
-                loadChart();
-                loadPeakHours();
-                loadPlatformDistribution();
-            }, 250);
-        }
-
-        function formatBytes(bytes) {
-            if (!bytes || bytes === 0) return '0 B';
-            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-            const k = 1024;
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + units[i];
-        }
-
-        async function fetchAPI(endpoint) {
-            try {
-                const response = await fetch(`${API_BASE}/api/${endpoint}`);
-                if (!response.ok) throw new Error('API Error');
-                return await response.json();
-            } catch (error) {
-                console.error(error);
-                return null;
-            }
-        }
-
-        function formatNumber(num) {
-            return new Intl.NumberFormat('id-ID').format(num);
-        }
-
-        async function loadOverview() {
-            const data = await fetchAPI('overview');
-            if (data) {
-                document.getElementById('totalUsers').textContent = formatNumber(data.total_users);
-                document.getElementById('totalChats').textContent = formatNumber(data.total_chats);
-                document.getElementById('totalPlays').textContent = formatNumber(data.total_plays);
-                document.getElementById('activeCalls').textContent = formatNumber(data.active_calls);
-            }
-        }
-
-        async function loadChart() {
-            const data = await fetchAPI('daily-stats?days=7');
-            if (!data) return;
-
-            const ctx = document.getElementById('dailyChart');
-            const labels = data.map(d => new Date(d.date).toLocaleDateString('id-ID', { weekday: 'short' }));
-            const values = data.map(d => d.play_count);
-
-            if (dailyChart) dailyChart.destroy();
-
-            // Use Telegram theme color for the chart line
-            const style = getComputedStyle(document.body);
-            const lineColor = style.getPropertyValue('--tg-theme-button-color').trim() || '#007aff';
-            const gridColor = style.getPropertyValue('--tg-theme-hint-color').trim() || '#8e8e93';
-
-            dailyChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Plays',
-                        data: values,
-                        borderColor: lineColor,
-                        backgroundColor: lineColor,
-                        borderWidth: 2,
-                        tension: 0.4,
-                        pointRadius: 3,
-                        pointBackgroundColor: style.getPropertyValue('--tg-theme-bg-color').trim(),
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: gridColor, font: { size: 10 } }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(128,128,128,0.1)', borderDash: [5, 5] },
-                            ticks: { color: gridColor, font: { size: 10 }, maxTicksLimit: 5 }
-                        }
-                    }
-                }
-            });
-        }
-
-        let peakChart = null;
-        async function loadPeakHours() {
-            const data = await fetchAPI('peak-hours?days=7');
-            if (!data) return;
-
-            const ctx = document.getElementById('peakChart');
-            const labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
-            const values = data.data;
-
-            if (peakChart) peakChart.destroy();
-
-            const style = getComputedStyle(document.body);
-            // Use a different color or same theme color
-            const barColor = style.getPropertyValue('--tg-theme-button-color').trim() || '#007aff';
-            const gridColor = style.getPropertyValue('--tg-theme-hint-color').trim() || '#8e8e93';
-
-            peakChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Plays',
-                        data: values,
-                        backgroundColor: barColor,
-                        borderRadius: 4,
-                        barPercentage: 0.6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                color: gridColor,
-                                font: { size: 9 },
-                                maxTicksLimit: 12
+                peakChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Plays',
+                            data: values,
+                            backgroundColor: barColor,
+                            borderRadius: 4,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    color: gridColor,
+                                    font: { size: 9 },
+                                    maxTicksLimit: 12
+                                }
+                            },
+                            y: {
+                                grid: { color: 'rgba(128,128,128,0.1)', borderDash: [5, 5] },
+                                ticks: { color: gridColor, font: { size: 10 }, maxTicksLimit: 5 }
                             }
-                        },
-                        y: {
-                            grid: { color: 'rgba(128,128,128,0.1)', borderDash: [5, 5] },
-                            ticks: { color: gridColor, font: { size: 10 }, maxTicksLimit: 5 }
                         }
                     }
-                }
-            });
-        }
-
-        function renderList(containerId, data, titleKey, subtitleKey, valueKey, type) {
-            const container = document.getElementById(containerId);
-            if (!data || data.length === 0) {
-                container.innerHTML = '<div class="status-text">No data available</div>';
-                return;
+                });
             }
 
-            container.innerHTML = data.map((item, index) => {
-                const rankClass = index < 3 ? `rank-${index + 1}` : '';
-                const title = item[titleKey] || 'Unknown';
-                // For users, show user_id as subtitle. For tracks, show duration. For chats, nothing or member count if available.
-                let subtitle = '';
-                if (titleKey === 'username' && item.user_id) subtitle = `ID: ${item.user_id}`;
-                if (titleKey === 'title' && item.duration) subtitle = item.duration;
-
-                // Image handling
-                let mediaHtml = '';
-                const showImage = type !== 'track'; // Hide images for tracks
-                const rowClass = showImage ? '' : 'no-image';
-
-                if (showImage) {
-                    const shapeClass = type === 'track' ? 'rounded' : 'circle';
-                    if (item.image) {
-                        mediaHtml = `<img src="${item.image}" class="list-image ${shapeClass}" loading="lazy" onerror="this.style.display='none'">`;
-                    } else {
-                        const initials = title.substring(0, 1).toUpperCase();
-                        // Generate a color based on the title string
-                        const colors = ['#FF9500', '#FF3B30', '#5AC8FA', '#4CD964', '#5856D6', '#FF2D55'];
-                        let hash = 0;
-                        for (let i = 0; i < title.length; i++) hash = title.charCodeAt(i) + ((hash << 5) - hash);
-                        const color = colors[Math.abs(hash) % colors.length];
-
-                        mediaHtml = `<div class="list-placeholder ${shapeClass}" style="background-color: ${color}">${initials}</div>`;
-                    }
+            function renderList(containerId, data, titleKey, subtitleKey, valueKey, type) {
+                const container = document.getElementById(containerId);
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="status-text">No data available</div>';
+                    return;
                 }
 
-                return `
+                container.innerHTML = data.map((item, index) => {
+                    const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                    const title = item[titleKey] || 'Unknown';
+                    // For users, show user_id as subtitle. For tracks, show duration. For chats, nothing or member count if available.
+                    let subtitle = '';
+                    if (titleKey === 'username' && item.user_id) subtitle = `ID: ${item.user_id}`;
+                    if (titleKey === 'title' && item.duration) subtitle = item.duration;
+
+                    // Image handling
+                    let mediaHtml = '';
+                    const showImage = type !== 'track'; // Hide images for tracks
+                    const rowClass = showImage ? '' : 'no-image';
+
+                    if (showImage) {
+                        const shapeClass = type === 'track' ? 'rounded' : 'circle';
+                        if (item.image) {
+                            mediaHtml = `<img src="${item.image}" class="list-image ${shapeClass}" loading="lazy" onerror="this.style.display='none'">`;
+                        } else {
+                            const initials = title.substring(0, 1).toUpperCase();
+                            // Generate a color based on the title string
+                            const colors = ['#FF9500', '#FF3B30', '#5AC8FA', '#4CD964', '#5856D6', '#FF2D55'];
+                            let hash = 0;
+                            for (let i = 0; i < title.length; i++) hash = title.charCodeAt(i) + ((hash << 5) - hash);
+                            const color = colors[Math.abs(hash) % colors.length];
+
+                            mediaHtml = `<div class="list-placeholder ${shapeClass}" style="background-color: ${color}">${initials}</div>`;
+                        }
+                    }
+
+                    return `
                 <div class="list-row ${rowClass}">
                     <div class="rank-circle ${rankClass}">${index + 1}</div>
                     ${mediaHtml}
@@ -895,296 +924,296 @@
                     <div class="row-value">${formatNumber(item[valueKey])}</div>
                 </div>
                 `;
-            }).join('');
-        }
-
-        async function loadLists() {
-            const [tracks, users, chats] = await Promise.all([
-                fetchAPI('top-tracks?limit=100'),
-                fetchAPI('top-users?limit=5'),
-                fetchAPI('top-chats?limit=5')
-            ]);
-
-            renderList('topTracksList', tracks, 'title', null, 'play_count', 'track');
-            renderList('topUsersList', users, 'username', null, 'play_count', 'user');
-            renderList('topChatsList', chats, 'chat_name', null, 'play_count', 'chat');
-        }
-
-        let platformChart = null;
-        async function loadPlatformDistribution() {
-            const response = await fetchAPI('platform-distribution');
-            if (!response) return;
-
-            const data = response.data;
-            const ctx = document.getElementById('platformChart');
-
-            // Filter out platforms with 0 plays
-            const labels = [];
-            const values = [];
-            const colors = {
-                youtube: '#FF0000',
-                spotify: '#1DB954',
-                soundcloud: '#FF5500',
-                local: '#6c757d',
-                other: '#9b59b6'
-            };
-            const bgColors = [];
-
-            for (const [platform, count] of Object.entries(data)) {
-                if (count > 0) {
-                    labels.push(platform.charAt(0).toUpperCase() + platform.slice(1));
-                    values.push(count);
-                    bgColors.push(colors[platform] || '#cccccc');
-                }
+                }).join('');
             }
 
-            if (platformChart) platformChart.destroy();
+            async function loadLists() {
+                const [tracks, users, chats] = await Promise.all([
+                    fetchAPI('top-tracks?limit=100'),
+                    fetchAPI('top-users?limit=5'),
+                    fetchAPI('top-chats?limit=5')
+                ]);
 
-            const style = getComputedStyle(document.body);
-            const textColor = style.getPropertyValue('--tg-theme-text-color').trim() || '#000000';
+                renderList('topTracksList', tracks, 'title', null, 'play_count', 'track');
+                renderList('topUsersList', users, 'username', null, 'play_count', 'user');
+                renderList('topChatsList', chats, 'chat_name', null, 'play_count', 'chat');
+            }
 
-            platformChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: bgColors,
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                color: textColor,
-                                font: { size: 12 },
-                                padding: 12
-                            }
-                        }
+            let platformChart = null;
+            async function loadPlatformDistribution() {
+                const response = await fetchAPI('platform-distribution');
+                if (!response) return;
+
+                const data = response.data;
+                const ctx = document.getElementById('platformChart');
+
+                // Filter out platforms with 0 plays
+                const labels = [];
+                const values = [];
+                const colors = {
+                    youtube: '#FF0000',
+                    spotify: '#1DB954',
+                    soundcloud: '#FF5500',
+                    local: '#6c757d',
+                    other: '#9b59b6'
+                };
+                const bgColors = [];
+
+                for (const [platform, count] of Object.entries(data)) {
+                    if (count > 0) {
+                        labels.push(platform.charAt(0).toUpperCase() + platform.slice(1));
+                        values.push(count);
+                        bgColors.push(colors[platform] || '#cccccc');
                     }
                 }
-            });
-        }
 
-        // Network monitoring
-        let networkRealtimeChart = null;
-        let networkDataPoints = {
-            upload: [],
-            download: [],
-            labels: []
-        };
-        const MAX_NETWORK_POINTS = 60; // 5 minutes at 5s intervals
+                if (platformChart) platformChart.destroy();
 
-        function initNetworkRealtimeChart() {
-            const ctx = document.getElementById('networkRealtimeChart');
-            const style = getComputedStyle(document.body);
-            const textColor = style.getPropertyValue('--tg-theme-text-color').trim() || '#000000';
-            const gridColor = style.getPropertyValue('--tg-theme-hint-color').trim() || '#8e8e93';
+                const style = getComputedStyle(document.body);
+                const textColor = style.getPropertyValue('--tg-theme-text-color').trim() || '#000000';
 
-            networkRealtimeChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: networkDataPoints.labels,
-                    datasets: [
-                        {
-                            label: 'Download',
-                            data: networkDataPoints.download,
-                            borderColor: '#1DB954',
-                            backgroundColor: 'rgba(29, 185, 84, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true
-                        },
-                        {
-                            label: 'Upload',
-                            data: networkDataPoints.upload,
-                            borderColor: '#0a84ff',
-                            backgroundColor: 'rgba(10, 132, 255, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            labels: { color: textColor }
-                        }
+                platformChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: bgColors,
+                            borderWidth: 0
+                        }]
                     },
-                    scales: {
-                        x: {
-                            display: false
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(128,128,128,0.1)' },
-                            ticks: {
-                                color: gridColor,
-                                callback: function (value) {
-                                    return (value / 1024 / 1024).toFixed(1) + ' MB/s';
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    color: textColor,
+                                    font: { size: 12 },
+                                    padding: 12
                                 }
                             }
                         }
                     }
-                }
-            });
-        }
-
-        function updateNetworkChart(uploadSpeed, downloadSpeed) {
-            if (!networkRealtimeChart) {
-                initNetworkRealtimeChart();
+                });
             }
 
-            // Add new data point
-            networkDataPoints.upload.push(uploadSpeed);
-            networkDataPoints.download.push(downloadSpeed);
-            networkDataPoints.labels.push('');
-
-            // Keep only last MAX_NETWORK_POINTS
-            if (networkDataPoints.upload.length > MAX_NETWORK_POINTS) {
-                networkDataPoints.upload.shift();
-                networkDataPoints.download.shift();
-                networkDataPoints.labels.shift();
-            }
-
-            networkRealtimeChart.update();
-        }
-
-        let ws = null;
-        let reconnectInterval = null;
-
-        function connectWebSocket() {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/ws`;
-
-            ws = new WebSocket(wsUrl);
-
-            ws.onopen = function () {
-                console.log('Connected to WebSocket');
-                if (reconnectInterval) {
-                    clearInterval(reconnectInterval);
-                    reconnectInterval = null;
-                }
+            // Network monitoring
+            let networkRealtimeChart = null;
+            let networkDataPoints = {
+                upload: [],
+                download: [],
+                labels: []
             };
+            const MAX_NETWORK_POINTS = 60; // 5 minutes at 5s intervals
 
-            ws.onmessage = function (event) {
-                try {
-                    const message = JSON.parse(event.data);
-                    if (message.type === 'overview') {
-                        updateOverview(message.data);
+            function initNetworkRealtimeChart() {
+                const ctx = document.getElementById('networkRealtimeChart');
+                const style = getComputedStyle(document.body);
+                const textColor = style.getPropertyValue('--tg-theme-text-color').trim() || '#000000';
+                const gridColor = style.getPropertyValue('--tg-theme-hint-color').trim() || '#8e8e93';
+
+                networkRealtimeChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: networkDataPoints.labels,
+                        datasets: [
+                            {
+                                label: 'Download',
+                                data: networkDataPoints.download,
+                                borderColor: '#1DB954',
+                                backgroundColor: 'rgba(29, 185, 84, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Upload',
+                                data: networkDataPoints.upload,
+                                borderColor: '#0a84ff',
+                                backgroundColor: 'rgba(10, 132, 255, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { color: textColor }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: false
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(128,128,128,0.1)' },
+                                ticks: {
+                                    color: gridColor,
+                                    callback: function (value) {
+                                        return (value / 1024 / 1024).toFixed(1) + ' MB/s';
+                                    }
+                                }
+                            }
+                        }
                     }
-                } catch (e) {
-                    console.error('Error parsing WS message:', e);
-                }
-            };
-
-            ws.onclose = function () {
-                console.log('WebSocket disconnected');
-                if (!reconnectInterval) {
-                    reconnectInterval = setInterval(connectWebSocket, 3000);
-                }
-            };
-
-            ws.onerror = function (err) {
-                console.error('WebSocket error:', err);
-                ws.close();
-            };
-        }
-
-        function formatUptime(seconds) {
-            if (!seconds) return '-';
-            const d = Math.floor(seconds / (3600 * 24));
-            const h = Math.floor((seconds % (3600 * 24)) / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            if (d > 0) return `${d}d ${h}h`;
-            return `${h}h ${m}m`;
-        }
-
-        function updateOverview(data) {
-            document.getElementById('totalUsers').textContent = formatNumber(data.total_users);
-            document.getElementById('totalChats').textContent = formatNumber(data.total_chats);
-            document.getElementById('totalPlays').textContent = formatNumber(data.total_plays);
-            document.getElementById('activeCalls').textContent = formatNumber(data.active_calls);
-
-            // Update System Stats
-            if (data.system) {
-                document.getElementById('cpuBar').style.width = `${data.system.cpu}%`;
-                document.getElementById('cpuText').textContent = `${Math.round(data.system.cpu)}%`;
-
-                document.getElementById('ramBar').style.width = `${data.system.ram}%`;
-                document.getElementById('ramText').textContent = `${Math.round(data.system.ram)}%`;
-
-                document.getElementById('diskBar').style.width = `${data.system.disk}%`;
-                document.getElementById('diskText').textContent = `${Math.round(data.system.disk)}%`;
-
-                document.getElementById('uptimeText').textContent = formatUptime(data.system.uptime);
-
-                // Update network chart if data available
-                if (data.system.network) {
-                    updateNetworkChart(data.system.network.upload_speed, data.system.network.download_speed);
-
-                    // Update total usage
-                    document.getElementById('totalUpload').textContent = formatBytes(data.system.network.total_sent);
-                    document.getElementById('totalDownload').textContent = formatBytes(data.system.network.total_recv);
-                }
-            }
-        }
-
-        async function loadAllData() {
-            const fab = document.querySelector('.fab');
-            fab.classList.add('spin');
-
-            await Promise.all([
-                loadOverview(), // Initial load
-                loadChart(),
-                loadPeakHours(),
-                loadPlatformDistribution(),
-                loadLists()
-            ]);
-
-            fab.classList.remove('spin');
-        }
-
-        // Start
-        function initApp() {
-            if (tg) {
-                tg.ready();
-                tg.expand();
+                });
             }
 
-            // Theme init with SVG icons
-            const savedTheme = localStorage.getItem('theme');
-            const btn = document.getElementById('themeBtn');
+            function updateNetworkChart(uploadSpeed, downloadSpeed) {
+                if (!networkRealtimeChart) {
+                    initNetworkRealtimeChart();
+                }
 
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
-                btn.innerHTML = sunIcon;
-            } else if (savedTheme === 'light') {
-                document.body.classList.remove('dark-theme');
-                btn.innerHTML = moonIcon;
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.body.classList.add('dark-theme');
-                btn.innerHTML = sunIcon;
-            } else {
-                btn.innerHTML = moonIcon;
+                // Add new data point
+                networkDataPoints.upload.push(uploadSpeed);
+                networkDataPoints.download.push(downloadSpeed);
+                networkDataPoints.labels.push('');
+
+                // Keep only last MAX_NETWORK_POINTS
+                if (networkDataPoints.upload.length > MAX_NETWORK_POINTS) {
+                    networkDataPoints.upload.shift();
+                    networkDataPoints.download.shift();
+                    networkDataPoints.labels.shift();
+                }
+
+                networkRealtimeChart.update();
             }
 
-            loadAllData();
-            connectWebSocket(); // Start WS connection
-        }
+            let ws = null;
+            let reconnectInterval = null;
 
-        initApp();
-    </script>
+            function connectWebSocket() {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/ws`;
+
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = function () {
+                    console.log('Connected to WebSocket');
+                    if (reconnectInterval) {
+                        clearInterval(reconnectInterval);
+                        reconnectInterval = null;
+                    }
+                };
+
+                ws.onmessage = function (event) {
+                    try {
+                        const message = JSON.parse(event.data);
+                        if (message.type === 'overview') {
+                            updateOverview(message.data);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing WS message:', e);
+                    }
+                };
+
+                ws.onclose = function () {
+                    console.log('WebSocket disconnected');
+                    if (!reconnectInterval) {
+                        reconnectInterval = setInterval(connectWebSocket, 3000);
+                    }
+                };
+
+                ws.onerror = function (err) {
+                    console.error('WebSocket error:', err);
+                    ws.close();
+                };
+            }
+
+            function formatUptime(seconds) {
+                if (!seconds) return '-';
+                const d = Math.floor(seconds / (3600 * 24));
+                const h = Math.floor((seconds % (3600 * 24)) / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                if (d > 0) return `${d}d ${h}h`;
+                return `${h}h ${m}m`;
+            }
+
+            function updateOverview(data) {
+                document.getElementById('totalUsers').textContent = formatNumber(data.total_users);
+                document.getElementById('totalChats').textContent = formatNumber(data.total_chats);
+                document.getElementById('totalPlays').textContent = formatNumber(data.total_plays);
+                document.getElementById('activeCalls').textContent = formatNumber(data.active_calls);
+
+                // Update System Stats
+                if (data.system) {
+                    document.getElementById('cpuBar').style.width = `${data.system.cpu}%`;
+                    document.getElementById('cpuText').textContent = `${Math.round(data.system.cpu)}%`;
+
+                    document.getElementById('ramBar').style.width = `${data.system.ram}%`;
+                    document.getElementById('ramText').textContent = `${Math.round(data.system.ram)}%`;
+
+                    document.getElementById('diskBar').style.width = `${data.system.disk}%`;
+                    document.getElementById('diskText').textContent = `${Math.round(data.system.disk)}%`;
+
+                    document.getElementById('uptimeText').textContent = formatUptime(data.system.uptime);
+
+                    // Update network chart if data available
+                    if (data.system.network) {
+                        updateNetworkChart(data.system.network.upload_speed, data.system.network.download_speed);
+
+                        // Update total usage
+                        document.getElementById('totalUpload').textContent = formatBytes(data.system.network.total_sent);
+                        document.getElementById('totalDownload').textContent = formatBytes(data.system.network.total_recv);
+                    }
+                }
+            }
+
+            async function loadAllData() {
+                const fab = document.querySelector('.fab');
+                fab.classList.add('spin');
+
+                await Promise.all([
+                    loadOverview(), // Initial load
+                    loadChart(),
+                    loadPeakHours(),
+                    loadPlatformDistribution(),
+                    loadLists()
+                ]);
+
+                fab.classList.remove('spin');
+            }
+
+            // Start
+            function initApp() {
+                if (tg) {
+                    tg.ready();
+                    tg.expand();
+                }
+
+                // Theme init with SVG icons
+                const savedTheme = localStorage.getItem('theme');
+                const btn = document.getElementById('themeBtn');
+
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-theme');
+                    btn.innerHTML = sunIcon;
+                } else if (savedTheme === 'light') {
+                    document.body.classList.remove('dark-theme');
+                    btn.innerHTML = moonIcon;
+                } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.classList.add('dark-theme');
+                    btn.innerHTML = sunIcon;
+                } else {
+                    btn.innerHTML = moonIcon;
+                }
+
+                loadAllData();
+                connectWebSocket(); // Start WS connection
+            }
+
+            initApp();
+        </script>
 </body>
 
 </html>
