@@ -10,7 +10,7 @@ Command untuk mengakses konten DramaBox dari Telegram.
 
 from pyrogram import enums, filters, types
 from delta import app, anon, db, queue
-from delta.helpers import Media, admin_check
+from delta.helpers import Media, is_admin
 from .api import dramabox, Drama, Episode
 
 
@@ -174,7 +174,7 @@ async def drama_command(_, message: types.Message):
     
     # Check Admin Only Mode
     if await db.get_drama_mode(message.chat.id):
-        if not await admin_check(message):
+        if not await is_admin(message.chat.id, message.from_user.id):
             return await message.reply_text("❌ <b>Maaf, fitur ini khusus Admin di grup ini.</b>", parse_mode=enums.ParseMode.HTML)
     
     if len(message.command) < 2:
@@ -213,7 +213,7 @@ async def drama_trending_command(_, message: types.Message):
     
     # Check Admin Only Mode
     if await db.get_drama_mode(message.chat.id):
-        if not await admin_check(message):
+        if not await is_admin(message.chat.id, message.from_user.id):
             return await message.reply_text("❌ <b>Maaf, fitur ini khusus Admin di grup ini.</b>", parse_mode=enums.ParseMode.HTML)
             
     mystic = await message.reply_text("⏳ <b>Memuat drama trending...</b>", parse_mode=enums.ParseMode.HTML)
@@ -234,7 +234,7 @@ async def drama_latest_command(_, message: types.Message):
     
     # Check Admin Only Mode
     if await db.get_drama_mode(message.chat.id):
-        if not await admin_check(message):
+        if not await is_admin(message.chat.id, message.from_user.id):
             return await message.reply_text("❌ <b>Maaf, fitur ini khusus Admin di grup ini.</b>", parse_mode=enums.ParseMode.HTML)
             
     mystic = await message.reply_text("⏳ <b>Memuat drama terbaru...</b>", parse_mode=enums.ParseMode.HTML)
