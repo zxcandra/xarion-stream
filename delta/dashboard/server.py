@@ -257,9 +257,12 @@ async def get_group_stats(chat_id: int, limit: int = 10):
 # Mount static files
 try:
     static_path = Path(__file__).parent / "static"
+    if not static_path.exists():
+        static_path.mkdir(exist_ok=True)
+        logger.warning(f"Created missing directory: {static_path}")
     dashboard_app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
-except:
-    logger.warning("Dashboard static files not found, creating directory...")
+except Exception as e:
+    logger.warning(f"Could not mount static files: {e}")
 
 
 # Run server function
@@ -271,7 +274,8 @@ async def run_dashboard_server(host: str = "0.0.0.0", port: int = 8000):
         dashboard_app,
         host=host,
         port=port,
-        log_level="info"
+        log_level="warning",
+        access_log=False
     )
     server = uvicorn.Server(config_uvicorn)
     
