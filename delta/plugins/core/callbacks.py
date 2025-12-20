@@ -17,6 +17,12 @@ async def cancel_dl(_, query: types.CallbackQuery):
     await tg.cancel(query)
 
 
+@app.on_callback_query(filters.regex("^noop$") & ~app.bl_users)
+async def noop_callback(_, query: types.CallbackQuery):
+    """Handle no-operation callbacks (for non-clickable label buttons)"""
+    await query.answer()
+
+
 @app.on_callback_query(filters.regex("controls") & ~app.bl_users)
 @can_manage_vc
 async def _controls(_, query: types.CallbackQuery):

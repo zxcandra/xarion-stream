@@ -326,7 +326,7 @@ class MongoDB:
         doc = await self.chatsdb.find_one({"_id": chat_id})
         if doc and "drama_mode" in doc:
             return doc["drama_mode"]
-        return False  # Default: allowed for everyone
+        return True  # Default: admin only
 
     async def set_drama_mode(self, chat_id: int, admin_only: bool) -> None:
         """Set drama mode for a chat."""

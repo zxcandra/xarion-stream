@@ -199,42 +199,42 @@ class Inline:
                 [
                     self.ikb(
                         text="🔁 Loop Mode ➜",
-                        callback_data="player_settings",
+                        callback_data="noop",
                     ),
                     self.ikb(text=loop_text, callback_data="player_settings loop"),
                 ],
                 [
                     self.ikb(
                         text="📹 Video Mode ➜",
-                        callback_data="player_settings",
+                        callback_data="noop",
                     ),
                     self.ikb(text="✅ Aktif" if video_mode else "❌ Nonaktif", callback_data="player_settings video"),
                 ],
                 [
                     self.ikb(
                         text="🎬 Kualitas ➜",
-                        callback_data="player_settings",
+                        callback_data="noop",
                     ),
                     self.ikb(text=f"📺 {video_quality}", callback_data="player_settings quality"),
                 ],
                 [
                     self.ikb(
                         text="👮 Admin Only ➜",
-                        callback_data="player_settings",
+                        callback_data="noop",
                     ),
                     self.ikb(text="✅ Aktif" if admin_only else "❌ Nonaktif", callback_data="player_settings admin"),
                 ],
                 [
                     self.ikb(
                         text="🗑 Auto Delete ➜",
-                        callback_data="player_settings",
+                        callback_data="noop",
                     ),
                     self.ikb(text="✅ Aktif" if cmd_delete else "❌ Nonaktif", callback_data="player_settings delete"),
                 ],
                 [
                     self.ikb(
                         text="🎭 Drama (Admin) ➜",
-                        callback_data="player_settings",
+                        callback_data="noop",
                     ),
                     self.ikb(text="✅ Aktif" if drama_mode else "❌ Nonaktif", callback_data="player_settings drama"),
                 ],
