@@ -51,18 +51,21 @@ class TopTrack(BaseModel):
     title: str
     play_count: int
     duration: str
+    image: Optional[str] = None
 
 
 class TopUser(BaseModel):
     user_id: int
     username: Optional[str]
     play_count: int
+    image: Optional[str] = None
 
 
 class TopChat(BaseModel):
     chat_id: int
     chat_name: Optional[str]
     play_count: int
+    image: Optional[str] = None
 
 
 class DailyStats(BaseModel):
@@ -119,7 +122,8 @@ async def get_top_tracks(limit: int = 10):
                 "id": track_id,
                 "title": data["title"],
                 "play_count": data["spot"],
-                "duration": data["duration"]
+                "duration": data["duration"],
+                "image": data.get("thumbnail")
             })
         
         return result
@@ -159,7 +163,8 @@ async def get_top_users(limit: int = 10):
             result.append({
                 "user_id": user_id,
                 "username": username,
-                "play_count": count
+                "play_count": count,
+                "image": None # Placeholder handled by frontend
             })
             
             if len(result) >= limit:
@@ -189,7 +194,8 @@ async def get_top_chats(limit: int = 10):
             result.append({
                 "chat_id": chat_id,
                 "chat_name": chat_name,
-                "play_count": count
+                "play_count": count,
+                "image": None # Placeholder handled by frontend
             })
         
         return result

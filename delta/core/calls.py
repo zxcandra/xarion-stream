@@ -106,7 +106,8 @@ class TgCall(PyTgCalls):
                         title=media.title,
                         duration=media.duration,
                         user_id=media.user_id or message.from_user.id,
-                        chat_id=chat_id
+                        chat_id=chat_id,
+                        thumbnail=media.thumbnail if hasattr(media, 'thumbnail') else None
                     )
                     await db.increment_queries()
                 except:

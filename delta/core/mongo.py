@@ -423,12 +423,19 @@ class MongoDB:
         await self.pm_messagesdb.delete_one({"_id": "custom_messages"})
 
     # STATS TRACKING METHODS
-    async def add_stats(self, track_id: str, title: str, duration: str, user_id: int, chat_id: int) -> None:
+    async def add_stats(self, track_id: str, title: str, duration: str, user_id: int, chat_id: int, thumbnail: str = None) -> None:
         """Add or update play statistics."""
+        update_data = {
+            "title": title, 
+            "duration": duration
+        }
+        if thumbnail:
+            update_data["thumbnail"] = thumbnail
+
         await self.statsdb.update_one(
             {"_id": track_id},
             {
-                "$set": {"title": title, "duration": duration},
+                "$set": update_data,
                 "$inc": {
                     "count": 1,
                     f"users.{user_id}": 1,
@@ -462,7 +469,8 @@ class MongoDB:
             results[doc["_id"]] = {
                 "spot": doc.get("count", 0),
                 "title": doc.get("title", "Unknown"),
-                "duration": doc.get("duration", "0:00")
+                "duration": doc.get("duration", "0:00"),
+                "thumbnail": doc.get("thumbnail", "")
             }
         return results
 

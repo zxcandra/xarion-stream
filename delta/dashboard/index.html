@@ -157,8 +157,8 @@
             content: '';
             position: absolute;
             bottom: 0;
-            left: 56px;
-            /* Align with text start */
+            left: 72px;
+            /* Adjusted for image + rank */
             right: 0;
             height: 1px;
             background-color: var(--tg-theme-secondary-bg-color, #effef4);
@@ -167,34 +167,73 @@
         }
 
         .rank-circle {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background-color: var(--tg-theme-secondary-bg-color, #efeff4);
-            color: var(--tg-theme-text-color);
+            color: var(--tg-theme-hint-color);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 11px;
             margin-right: 12px;
             flex-shrink: 0;
         }
 
-        /* Top 3 Colors */
+        /* Top 3 Colors (Subtle badges for rank) */
         .rank-1 {
-            background-color: #FFD700;
-            color: #000;
+            color: #FF9500;
+            background: rgba(255, 149, 0, 0.1);
         }
 
         .rank-2 {
-            background-color: #C0C0C0;
-            color: #000;
+            color: #8E8E93;
+            background: rgba(142, 142, 147, 0.1);
         }
 
         .rank-3 {
-            background-color: #CD7F32;
-            color: #000;
+            color: #AF52DE;
+            background: rgba(175, 82, 222, 0.1);
+        }
+
+        .list-image {
+            width: 40px;
+            height: 40px;
+            background-color: var(--tg-theme-secondary-bg-color, #efeff4);
+            margin-right: 12px;
+            flex-shrink: 0;
+            object-fit: cover;
+        }
+
+        .list-image.circle {
+            border-radius: 50%;
+        }
+
+        .list-image.rounded {
+            border-radius: 8px;
+        }
+
+        .list-placeholder {
+            width: 40px;
+            height: 40px;
+            background-color: var(--tg-theme-button-color, #007aff);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .list-placeholder.circle {
+            border-radius: 50%;
+        }
+
+        .list-placeholder.rounded {
+            border-radius: 8px;
         }
 
         .row-content {
@@ -437,9 +476,27 @@
                 if (titleKey === 'username' && item.user_id) subtitle = `ID: ${item.user_id}`;
                 if (titleKey === 'title' && item.duration) subtitle = item.duration;
 
+                // Image handling
+                let mediaHtml = '';
+                const shapeClass = type === 'track' ? 'rounded' : 'circle';
+
+                if (item.image) {
+                    mediaHtml = `<img src="${item.image}" class="list-image ${shapeClass}" loading="lazy" onerror="this.style.display='none'">`;
+                } else {
+                    const initials = title.substring(0, 1).toUpperCase();
+                    // Generate a color based on the title string
+                    const colors = ['#FF9500', '#FF3B30', '#5AC8FA', '#4CD964', '#5856D6', '#FF2D55'];
+                    let hash = 0;
+                    for (let i = 0; i < title.length; i++) hash = title.charCodeAt(i) + ((hash << 5) - hash);
+                    const color = colors[Math.abs(hash) % colors.length];
+
+                    mediaHtml = `<div class="list-placeholder ${shapeClass}" style="background-color: ${color}">${initials}</div>`;
+                }
+
                 return `
                 <div class="list-row">
                     <div class="rank-circle ${rankClass}">${index + 1}</div>
+                    ${mediaHtml}
                     <div class="row-content">
                         <div class="row-title">${title}</div>
                         ${subtitle ? `<div class="row-subtitle">${subtitle}</div>` : ''}
