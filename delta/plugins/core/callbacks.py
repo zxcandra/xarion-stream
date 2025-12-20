@@ -251,34 +251,6 @@ async def _help(_, query: types.CallbackQuery):
     )
 
 
-@app.on_callback_query(filters.regex("settings") & ~app.bl_users)
-@admin_check
-async def _settings_cb(_, query: types.CallbackQuery):
-    cmd = query.data.split()
-    if len(cmd) == 1:
-        return await query.answer()
-    await query.answer("Memproses...", show_alert=True)
-
-    chat_id = query.message.chat.id
-    _admin = await db.get_play_mode(chat_id)
-    _delete = await db.get_cmd_delete(chat_id)
-
-    if cmd[1] == "delete":
-        _delete = not _delete
-        await db.set_cmd_delete(chat_id, _delete)
-    elif cmd[1] == "play":
-        await db.set_play_mode(chat_id, _admin)
-        _admin = not _admin
-    await query.edit_message_reply_markup(
-        reply_markup=buttons.settings_markup(
-            {},
-            _admin,
-            _delete,
-            chat_id,
-        )
-    )
-
-
 @app.on_callback_query(filters.regex("donate") & ~app.bl_users)
 async def _donate_cb(_, query: types.CallbackQuery):
     """Handle donate button click and show donation info."""

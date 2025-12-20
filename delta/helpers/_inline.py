@@ -161,28 +161,6 @@ class Inline:
             
         return self.ikm(buttons)
 
-    def settings_markup(
-        self, lang=None, admin_only=True, cmd_delete=True, chat_id=0
-    ) -> types.InlineKeyboardMarkup:
-        return self.ikm(
-            [
-                [
-                    self.ikb(
-                        text="Mode Admin ➜",
-                        callback_data="settings",
-                    ),
-                    self.ikb(text="Aktif" if admin_only else "Nonaktif", callback_data="settings play"),
-                ],
-                [
-                    self.ikb(
-                        text="Hapus Perintah ➜",
-                        callback_data="settings",
-                    ),
-                    self.ikb(text="Aktif" if cmd_delete else "Nonaktif", callback_data="settings delete"),
-                ],
-            ]
-        )
-
     def player_settings_markup(
         self, loop_mode="normal", admin_only=True, cmd_delete=True, video_mode=True, video_quality="720p", drama_mode=False, chat_id=0
     ) -> types.InlineKeyboardMarkup:
