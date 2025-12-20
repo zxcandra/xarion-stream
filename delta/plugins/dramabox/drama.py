@@ -482,7 +482,7 @@ async def drama_download_callback(_, callback: types.CallbackQuery):
     
     msg = await callback.message.reply_text(f"⬇️ <b>Mengunduh...</b>\n\n🎬 {drama_title}\n📺 {episode.chapter_name}\n\n⏳ Mohon tunggu, ini mungkin memakan waktu...", parse_mode=enums.ParseMode.HTML)
     
-    # Download file locally first
+    # Download file locally first - use final filename directly
     downloads_dir = "downloads"
     os.makedirs(downloads_dir, exist_ok=True)
     local_path = os.path.join(downloads_dir, filename)
@@ -519,7 +519,6 @@ async def drama_download_callback(_, callback: types.CallbackQuery):
         await callback.message.reply_video(
             video=local_path,
             caption=f"🎬 <b>{drama_title}</b>\n📺 {episode.chapter_name}\n💿 {quality}",
-            file_name=filename,
             supports_streaming=True,
             parse_mode=enums.ParseMode.HTML
         )
