@@ -424,7 +424,9 @@ async def broadcast_stats():
                         "uptime": uptime_seconds,
                         "network": {
                             "upload_speed": upload_speed,
-                            "download_speed": download_speed
+                            "download_speed": download_speed,
+                            "total_sent": current_network_io.bytes_sent,
+                            "total_recv": current_network_io.bytes_recv
                         }
                     }
                 except Exception as ex:

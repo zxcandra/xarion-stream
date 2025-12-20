@@ -463,6 +463,33 @@
             display: flex;
             align-items: center;
         }
+
+        .network-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 16px;
+            background-color: var(--tg-theme-secondary-bg-color, #efeff4);
+            border-radius: 8px;
+            margin: 12px 16px;
+        }
+
+        .network-stat-item {
+            text-align: center;
+        }
+
+        .network-stat-label {
+            font-size: 11px;
+            color: var(--tg-theme-hint-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .network-stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color);
+            margin-top: 4px;
+        }
     </style>
 </head>
 
@@ -562,6 +589,16 @@
             <div class="card">
                 <div class="chart-container">
                     <canvas id="networkRealtimeChart"></canvas>
+                </div>
+                <div class="network-stats">
+                    <div class="network-stat-item">
+                        <div class="network-stat-label">↑ Total Upload</div>
+                        <div class="network-stat-value" id="totalUpload">-</div>
+                    </div>
+                    <div class="network-stat-item">
+                        <div class="network-stat-label">↓ Total Download</div>
+                        <div class="network-stat-value" id="totalDownload">-</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -677,6 +714,14 @@
                 loadPeakHours();
                 loadPlatformDistribution();
             }, 250);
+        }
+
+        function formatBytes(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const k = 1024;
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + units[i];
         }
 
         async function fetchAPI(endpoint) {
@@ -1087,6 +1132,10 @@
                 // Update network chart if data available
                 if (data.system.network) {
                     updateNetworkChart(data.system.network.upload_speed, data.system.network.download_speed);
+
+                    // Update total usage
+                    document.getElementById('totalUpload').textContent = formatBytes(data.system.network.total_sent);
+                    document.getElementById('totalDownload').textContent = formatBytes(data.system.network.total_recv);
                 }
             }
         }
