@@ -516,10 +516,11 @@ async def drama_download_callback(_, callback: types.CallbackQuery):
         # Upload ke Telegram
         await msg.edit_text(f"⬆️ <b>Mengirim ke Telegram...</b>\n\n🎬 {drama_title}\n📺 {episode.chapter_name}", parse_mode=enums.ParseMode.HTML)
         
-        await callback.message.reply_document(
-            document=local_path,
+        await callback.message.reply_video(
+            video=local_path,
             caption=f"🎬 <b>{drama_title}</b>\n📺 {episode.chapter_name}\n💿 {quality}",
             file_name=filename,
+            supports_streaming=True,
             parse_mode=enums.ParseMode.HTML
         )
         
