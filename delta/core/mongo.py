@@ -17,7 +17,7 @@ class MongoDB:
         Initialize the MongoDB connection.
         """
         self.mongo = AsyncIOMotorClient(config.MONGO_URL, serverSelectionTimeoutMS=12500)
-        self.db = self.mongo.Anon
+        self.db = self.mongo[config.DB_NAME]
 
         self.admin_list = {}
         self.active_callsdb = self.db.active_calls
