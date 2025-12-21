@@ -140,7 +140,7 @@ async def play_hndlr(
     else:
         position = queue.add(m.chat.id, file)
 
-        if await db.get_call(m.chat.id):
+        if position != 0 or await db.get_call(m.chat.id):
             await sent.edit_text(
                 f"✅ <b>Ditambahkan ke Antrian: #{position}</b>\n\n<blockquote><b>Judul:</b> <a href={file.url}>{file.title}</a>\n<b>Durasi:</b> {file.duration} menit\n<b>Diminta oleh:</b> {m.from_user.mention}</blockquote>",
                 reply_markup=buttons.play_queued(

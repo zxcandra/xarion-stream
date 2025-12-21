@@ -20,6 +20,7 @@ This enhanced version includes **production-grade improvements** and **new featu
 4. **📊 Statistics Dashboard** - Beautiful web analytics
 5. **🛡️ Graceful Shutdown** - Safe restart/stop
 6. **⚡ FloodWait Handler** - Auto-retry on rate limits
+7. **🎬 DramaBox Integration** - Download and stream drama episodes
 
 ---
 
@@ -90,6 +91,14 @@ python run_dashboard.py
 /play <query>   # Play music
 /lyrics         # Get lyrics for current song
 /lyrics <song>  # Search specific song lyrics
+```
+
+### DramaBox
+```
+/drama              # Browse trending dramas
+/drama <query>      # Search for dramas
+/dramatrending      # Show trending dramas
+/dramaterbaru       # Show latest dramas
 ```
 
 ---
@@ -201,6 +210,51 @@ Silakan tunggu 45 detik...
 async def my_function():
     # Protected from FloodWait!
     pass
+```
+
+---
+
+### 7. 🎬 DramaBox Integration
+
+**Browse and download** drama episodes directly in Telegram.
+
+**Commands:**
+```
+/drama              # Browse trending dramas
+/drama <query>      # Search for dramas
+/dramatrending      # Show trending dramas
+/dramaterbaru       # Show latest dramas
+```
+
+**Features:**
+- 📥 Download via bot (with progress tracking)
+- 📥 Direct browser download
+- 🎬 Custom filenames: `{Title} - {Episode} - {Quality}.mp4`
+- 📺 Sent as streamable video
+- 🔍 Search and browse dramas
+- 🎯 Episode selection with quality options
+- 🏷️ Auto-cleanup after upload
+
+**How it works:**
+1. Search or browse dramas
+2. Select a drama from numbered list
+3. Choose episode and quality (720p, 1080p, etc.)
+4. Download via bot or browser
+
+**Bot vs Group behavior:**
+- **In Bot DM:** Download only (no voice chat streaming)
+- **In Groups:** Download + Stream to voice chat
+
+**Download Progress:**
+```
+⬇️ Sedang Mengunduh
+
+┃ 🎬 Drama Title
+┃ 📺 Episode 1
+┃ 💿 720p
+┃
+┃ 📊 Progress: 45.2%
+┃ 📦 Size: 123.4 MB / 273.1 MB
 ```
 
 ---
@@ -384,11 +438,11 @@ AUTO_DELETE_TIME=15        # Seconds
 
 ## 📈 Statistics
 
-**Lines of Code Added:** 2,500+
-**New Features:** 6
-**New Commands:** 8
-**Documentation:** 15,000+ words
-**Files Created:** 20+
+**Lines of Code Added:** 3,000+
+**New Features:** 7
+**New Commands:** 12
+**Documentation:** 16,000+ words
+**Files Created:** 22+
 
 ---
 

@@ -7,7 +7,7 @@ import re
 
 from pyrogram import enums, types
 
-# Note: 'app' is imported lazily in methods that need it to avoid circular imports
+from delta import app
 
 
 class Utilities:
@@ -63,7 +63,6 @@ class Utilities:
         return None
 
     async def extract_user(self, msg: types.Message) -> types.User | None:
-        from delta import app
         if msg.reply_to_message:
             return msg.reply_to_message.from_user
 
@@ -89,14 +88,12 @@ class Utilities:
         title: str,
         duration: str,
     ) -> None:
-        from delta import app
         if m.chat.id == app.logger:
             return
         _text = f"<u>{app.name} Log Play</u>\n\n<b>Chat:</b> <code>{m.chat.id}</code> | {m.chat.title}\n<b>User:</b> <code>{m.from_user.id}</code> | {m.from_user.mention}\n<b>Link pesan:</b> {m.link}\n\n<b>Judul:</b> {title}\n<b>Durasi:</b> {duration} menit"
         await app.send_message(chat_id=app.logger, text=_text)
 
     async def send_log(self, m: types.Message, chat: bool = False) -> None:
-        from delta import app
         if chat:
             user = m.from_user
             return await app.send_message(

@@ -497,7 +497,16 @@ async def drama_download_callback(_, callback: types.CallbackQuery):
     safe_ep = "".join(x for x in episode.chapter_name if x.isalnum() or x in [' ', '-', '_']).strip()
     filename = f"{safe_title} - {safe_ep} - {quality}.mp4"
     
-    msg = await callback.message.reply_text(f"⬇️ <b>Mengunduh...</b>\n\n🎬 {drama_title}\n📺 {episode.chapter_name}\n\n⏳ Mohon tunggu, ini mungkin memakan waktu...", parse_mode=enums.ParseMode.HTML)
+    msg = await callback.message.reply_text(
+        f"⬇️ <b>Sedang Mengunduh</b>\n\n"
+        f"<blockquote>"
+        f"🎬 {drama_title}\n"
+        f"📺 {episode.chapter_name}\n"
+        f"💿 {quality}\n\n"
+        f"⏳ Mohon tunggu, proses download sedang berjalan..."
+        f"</blockquote>",
+        parse_mode=enums.ParseMode.HTML
+    )
     
     # Download file locally first - use final filename directly
     downloads_dir = "downloads"
@@ -522,16 +531,34 @@ async def drama_download_callback(_, callback: types.CallbackQuery):
                         # Update progress every 10MB
                         if downloaded % (10 * 1024 * 1024) < 1024 * 1024:
                             progress = (downloaded / total_size * 100) if total_size > 0 else 0
+                            size_mb = downloaded / (1024 * 1024)
+                            total_mb = total_size / (1024 * 1024)
                             try:
                                 await msg.edit_text(
-                                    f"⬇️ <b>Mengunduh...</b>\n\n🎬 {drama_title}\n📺 {episode.chapter_name}\n\n📊 Progress: {progress:.1f}%",
+                                    f"⬇️ <b>Sedang Mengunduh</b>\n\n"
+                                    f"<blockquote>"
+                                    f"🎬 {drama_title}\n"
+                                    f"📺 {episode.chapter_name}\n"
+                                    f"💿 {quality}\n\n"
+                                    f"📊 Progress: <code>{progress:.1f}%</code>\n"
+                                    f"📦 Size: <code>{size_mb:.1f} MB / {total_mb:.1f} MB</code>"
+                                    f"</blockquote>",
                                     parse_mode=enums.ParseMode.HTML
                                 )
                             except:
                                 pass
         
         # Upload ke Telegram
-        await msg.edit_text(f"⬆️ <b>Mengirim ke Telegram...</b>\n\n🎬 {drama_title}\n📺 {episode.chapter_name}", parse_mode=enums.ParseMode.HTML)
+        await msg.edit_text(
+            f"⬆️ <b>Mengirim ke Telegram</b>\n\n"
+            f"<blockquote>"
+            f"🎬 {drama_title}\n"
+            f"📺 {episode.chapter_name}\n"
+            f"💿 {quality}\n\n"
+            f"⏳ Sedang mengunggah file..."
+            f"</blockquote>",
+            parse_mode=enums.ParseMode.HTML
+        )
         
         await callback.message.reply_video(
             video=local_path,

@@ -6,7 +6,7 @@
 import asyncio
 import time
 
-from pyrogram import enums, filters, types
+from pyrogram import enums, errors, filters, types
 
 from delta import anon, app, config, db, queue, tasks, userbot, yt
 from delta.helpers import buttons
@@ -69,7 +69,7 @@ async def update_timer(length=10):
                 played = media.time
                 remaining = duration - played
                 pos = min(int((played / duration) * length), length - 1)
-                timer = "─" * pos + "●" + "─" * (length - pos - 1)
+                timer = "—" * pos + "◉" + "—" * (length - pos - 1)
 
                 if remaining <= 30:
                     next = queue.get_next(chat_id, check=True)
@@ -80,7 +80,7 @@ async def update_timer(length=10):
                     remove = True
                 else:
                     remove = False
-                    timer = f"{time.strftime('%M:%S', time.gmtime(played))} {timer} {time.strftime('%M:%S', time.gmtime(duration))}"
+                    timer = f"{time.strftime('%M:%S', time.gmtime(played))} | {timer} | -{time.strftime('%M:%S', time.gmtime(remaining))}"
 
                 await app.edit_message_reply_markup(
                     chat_id=chat_id,
@@ -98,18 +98,21 @@ async def vc_watcher(sleep=15):
         await asyncio.sleep(sleep)
         for chat_id in list(db.active_calls):
             client = await db.get_assistant(chat_id)
-            played = await client.time(chat_id)
+            media = queue.get_current(chat_id)
             participants = await client.get_participants(chat_id)
-            if len(participants) < 2 and played > 30:
-                sent = await app.edit_message_reply_markup(
-                    chat_id=chat_id,
-                    message_id=queue.get_current(chat_id).message_id,
-                    reply_markup=buttons.controls(
-                        chat_id=chat_id, status="Streaming dihentikan", remove=True
-                    ),
-                )
-                await anon.stop(chat_id)
-                await sent.reply_text("Saya menunggu, mengamati, menguap... lalu meninggalkan obrolan video.")
+            if len(participants) < 2 and media.time > 30:
+                try:
+                    sent = await app.edit_message_reply_markup(
+                        chat_id=chat_id,
+                        message_id=media.message_id,
+                        reply_markup=buttons.controls(
+                            chat_id=chat_id, status="Streaming dihentikan", remove=True
+                        ),
+                    )
+                    await anon.stop(chat_id)
+                    await sent.reply_text("Saya menunggu, mengamati, menguap... lalu meninggalkan obrolan video.")
+                except errors.MessageIdInvalid:
+                    pass
 
 
 if config.AUTO_END:
