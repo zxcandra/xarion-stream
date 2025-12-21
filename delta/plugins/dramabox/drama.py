@@ -345,10 +345,13 @@ async def drama_episode_callback(_, callback: types.CallbackQuery):
     
     keyboard = create_quality_keyboard(episode, book_id)
     
-    if callback.message.photo:
-        await callback.message.edit_caption(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
-    else:
-        await callback.message.edit_text(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
+    try:
+        if callback.message.photo:
+            await callback.message.edit_caption(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
+        else:
+            await callback.message.edit_text(text, parse_mode=enums.ParseMode.HTML, reply_markup=keyboard)
+    except errors.MessageNotModified:
+        pass  # Message content is the same, ignore
 
 
 @app.on_callback_query(filters.regex(r"^drama_play:"))
