@@ -1265,7 +1265,7 @@
 
         async function loadAllData() {
             const fab = document.querySelector('.fab');
-            fab.classList.add('spin');
+            if (fab) fab.classList.add('spin');  // Safe null check
 
             await Promise.all([
                 loadOverview(), // Initial load
@@ -1275,7 +1275,7 @@
                 loadLists()
             ]);
 
-            fab.classList.remove('spin');
+            if (fab) fab.classList.remove('spin');  // Safe null check
         }
 
         // Start
