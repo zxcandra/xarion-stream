@@ -87,9 +87,40 @@
         }
 
         /* Header */
-        .header {
+        .error {
             text-align: center;
-            padding: 24px 0 16px;
+            padding: 20px;
+            color: #dc3545;
+        }
+
+        /* Time Filter Buttons */
+        .time-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 0 16px;
+        }
+
+        .time-filter-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--tg-theme-button-color, #007aff);
+            background: transparent;
+            color: var(--tg-theme-button-color, #007aff);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-filter-btn.active {
+            background: var(--tg-theme-button-color, #007aff);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .time-filter-btn:hover:not(.active) {
+            background: rgba(0, 122, 255, 0.1);
         }
 
         .header h1 {
@@ -630,8 +661,13 @@
                     </div>
                 </div>
 
-                <div class="section-title">Peak Usage (Last 7 Days)</div>
+                <div class="section-title">Peak Usage</div>
                 <div class="card">
+                    <div class="time-filters">
+                        <button class="time-filter-btn" onclick="loadPeakHours(1)">1 Day</button>
+                        <button class="time-filter-btn active" onclick="loadPeakHours(7)">7 Days</button>
+                        <button class="time-filter-btn" onclick="loadPeakHours(30)">30 Days</button>
+                    </div>
                     <div class="chart-container">
                         <canvas id="peakChart"></canvas>
                     </div>
@@ -871,8 +907,21 @@
         }
 
         let peakChart = null;
-        async function loadPeakHours() {
-            const data = await fetchAPI('peak-hours?days=7');
+        let currentPeakDays = 7; // Default
+
+        async function loadPeakHours(days = 7) {
+            currentPeakDays = days;
+
+            // Update button states
+            document.querySelectorAll('.time-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = Array.from(document.querySelectorAll('.time-filter-btn')).find(
+                btn => btn.textContent.includes(days === 1 ? '1 Day' : days === 7 ? '7 Days' : '30 Days')
+            );
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const data = await fetchAPI(`peak-hours?days=${days}`);
             if (!data) return;
 
             const ctx = document.getElementById('peakChart');
