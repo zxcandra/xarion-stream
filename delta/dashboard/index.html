@@ -96,19 +96,19 @@
         /* Time Filter Buttons */
         .time-filters {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 12px;
             padding: 0 16px;
         }
 
         .time-filter-btn {
             flex: 1;
-            padding: 8px 12px;
-            border: 1px solid var(--tg-theme-button-color, #007aff);
+            padding: 6px 10px;
+            border: 1px solid rgba(128, 128, 128, 0.3);
             background: transparent;
-            color: var(--tg-theme-button-color, #007aff);
-            border-radius: 8px;
-            font-size: 13px;
+            color: var(--tg-theme-hint-color, #8e8e93);
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
@@ -117,10 +117,12 @@
         .time-filter-btn.active {
             background: var(--tg-theme-button-color, #007aff);
             color: var(--tg-theme-button-text-color, #ffffff);
+            border-color: var(--tg-theme-button-color, #007aff);
         }
 
         .time-filter-btn:hover:not(.active) {
-            background: rgba(0, 122, 255, 0.1);
+            background: rgba(128, 128, 128, 0.1);
+            border-color: rgba(128, 128, 128, 0.4);
         }
 
         .header h1 {
