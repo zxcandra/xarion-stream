@@ -188,10 +188,18 @@ async def get_stats_callback(_, query: types.CallbackQuery):
             try:
                 if what in ["Users", "UsersHere"]:
                     try:
-                        user = await app.get_users(item_id)
-                        extract = f"<a href='tg://user?id={item_id}'>{user.first_name}</a>"
+                        # Convert to int if string (MongoDB sometimes stores as string)
+                        user_id_int = int(item_id)
+                        user = await app.get_users(user_id_int)
+                        extract = f"<a href='tg://user?id={user_id_int}'>{user.first_name}</a>"
                     except:
-                        extract = "Deleted User"
+                        # If can't fetch user, show ID as fallback instead of skipping
+                        try:
+                            user_id_int = int(item_id)
+                            extract = f"<a href='tg://user?id={user_id_int}'>User {user_id_int}</a>"
+                        except:
+                            # If ID conversion also fails, skip
+                            continue
                 else:
                     try:
                         chat = await app.get_chat(item_id)
@@ -200,7 +208,8 @@ async def get_stats_callback(_, query: types.CallbackQuery):
                         else:
                             extract = f"<b>{chat.title}</b>"
                     except:
-                        extract = "Deleted Group"
+                        # Skip deleted groups
+                        continue
             except:
                 continue
             
