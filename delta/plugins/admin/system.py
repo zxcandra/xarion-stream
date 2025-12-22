@@ -108,7 +108,7 @@ async def status_handler(_, message: types.Message):
     # Get bot stats
     total_chats = len(await db.get_chats())
     total_users = len(await db.get_users())
-    active_calls = len(db.active_calls)
+    active_calls = len(db.active_callsdb)
     
     status_text = (
         f"🤖 <b>Bot Status</b>\n\n"
