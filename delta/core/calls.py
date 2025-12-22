@@ -5,6 +5,7 @@
 
 from ntgcalls import (ConnectionNotFound, TelegramServerError,
                       RTMPStreamingUnsupported)
+from pyrogram import enums, errors, types
 from pyrogram.errors import MessageIdInvalid
 from pyrogram.types import InputMediaPhoto, Message
 from pytgcalls import PyTgCalls, exceptions, types
@@ -76,7 +77,7 @@ class TgCall(PyTgCalls):
         )
 
         if not media.file_path:
-            return await message.edit_text(f"File tidak ditemukan. Hubungi <a href='tg://user?id={config.OWNER_ID}'>owner</a>", parse_mode='HTML')
+            return await message.edit_text(f"File tidak ditemukan. Hubungi <a href='tg://user?id={config.OWNER_ID}'>owner</a>", parse_mode=enums.ParseMode.HTML)
 
         stream = types.MediaStream(
             media_path=media.file_path,
@@ -146,7 +147,7 @@ class TgCall(PyTgCalls):
                         reply_markup=keyboard,
                     )).id
         except FileNotFoundError:
-            await message.edit_text(f"File tidak ditemukan. Hubungi <a href='tg://user?id={config.OWNER_ID}'>owner</a>", parse_mode='HTML')
+            await message.edit_text(f"File tidak ditemukan. Hubungi <a href='tg://user?id={config.OWNER_ID}'>owner</a>", parse_mode=enums.ParseMode.HTML)
             await self.play_next(chat_id)
         except exceptions.NoActiveGroupCall:
             await self.stop(chat_id)
@@ -227,7 +228,7 @@ class TgCall(PyTgCalls):
                 await self.stop(chat_id)
                 return await msg.edit_text(
                     f"File tidak ditemukan. Hubungi <a href='tg://user?id={config.OWNER_ID}'>owner</a>",
-                    parse_mode='HTML'
+                    parse_mode=enums.ParseMode.HTML
                 )
 
         media.message_id = msg.id

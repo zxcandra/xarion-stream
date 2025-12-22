@@ -616,8 +616,8 @@ async def drama_close_callback(_, callback: types.CallbackQuery):
 async def drama_list_callback(_, callback: types.CallbackQuery):
     """Handle drama list pagination."""
     parts = callback.data.split(":")
-    search_type = parts[1]
-    page = int(parts[2])
+    page = int(parts[-1])
+    search_type = ":".join(parts[1:-1])
     
     await callback.answer()
     
