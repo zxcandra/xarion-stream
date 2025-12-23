@@ -26,7 +26,6 @@ async def stats_command(_, m: types.Message):
     
     # Get current group stats
     group_tracks = await db.get_group_stats(chat_id)
-    group_users = await db.get_group_top_users(chat_id, limit=1)
     
     total_tracks = len(group_tracks)
     total_plays = sum(track["spot"] for track in group_tracks.values())
@@ -36,7 +35,6 @@ async def stats_command(_, m: types.Message):
     # Get top user (fetch more to filter bots)
     group_users = await db.get_group_top_users(chat_id, limit=5)
     
-    top_user_text = ""
     if group_users:
         # Identify excluded IDs (Bot and Assistants)
         excluded_ids = {app.id}
@@ -56,10 +54,6 @@ async def stats_command(_, m: types.Message):
                 break
             except:
                 continue
-        
-        if not top_user_text and group_users:
-             # If all top users were bots or deleted, show nothing or generic
-             pass
     
     # Get group ranking
     all_groups = await db.get_top_chats(limit=1000)
@@ -87,7 +81,7 @@ async def stats_command(_, m: types.Message):
 
 @app.on_callback_query(filters.regex("GetStatsNow") & ~app.bl_users)
 async def get_stats_callback(_, query: types.CallbackQuery):
-    """Handle stats data requests (Tracks/Users/Chats/Here)."""
+    """Handle stats data requests (Artists/Users/Chats/Here)."""
     try:
         await query.answer()
     except:
@@ -97,7 +91,10 @@ async def get_stats_callback(_, query: types.CallbackQuery):
     what = callback_data.split(None, 1)[1]
     chat_id = query.message.chat.id
     
-    target = f"Grup {query.message.chat.title}" if what == "Here" else what
+    # Menyesuaikan label target (Tracks diganti Artist)
+    target_display = "Artist" if what == "Tracks" else what
+    target = f"Grup {query.message.chat.title}" if what == "Here" else target_display
+    
     await query.edit_message_caption(
         f"📊 <b>Top 10 {target}</b>",
         parse_mode=enums.ParseMode.HTML
@@ -129,50 +126,51 @@ async def get_stats_callback(_, query: types.CallbackQuery):
     msg = ""
     limit = 0
     total_plays = 0
-    
+    from delta.helpers import utils
+
     if what in ["Tracks", "Here"]:
-        # Display tracks with enhanced formatting
-        from delta.helpers import utils
-        
-        for track_id, data in list(stats.items())[:10]:
-            limit += 1
-            total_plays += data["spot"]
-            title = data["title"][:35]
-            count = data["spot"]
-            
-            # Medal for top 3
-            rank_icon = utils.get_medal(limit)
-            
-            if track_id == "telegram":
-                msg += f"{rank_icon} <a href='tg://user?id={config.OWNER_ID}'>Telegram Media</a> • <b>{utils.format_number(count)} plays</b>\n"
+        # LOGIKA BARU: TOP ARTIST (MENGELOMPOKKAN TRACKS BERDASARKAN ARTIST)
+        artist_counts = {}
+        for track_id, data in stats.items():
+            title = data.get("title", "Unknown")
+            # Memisahkan nama artis (Contoh: "Artis - Judul" -> "Artis")
+            if " - " in title:
+                artist_name = title.split(" - ")[0].strip()
             else:
-                msg += f"{rank_icon} <a href='https://www.youtube.com/watch?v={track_id}'>{title}</a> • <b>{utils.format_number(count)} plays</b>\n"
+                artist_name = "Various Artist"
+            
+            artist_counts[artist_name] = artist_counts.get(artist_name, 0) + data["spot"]
+            total_plays += data["spot"]
+
+        # Sort artis berdasarkan play terbanyak
+        sorted_artists = sorted(artist_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+
+        for artist, plays in sorted_artists:
+            limit += 1
+            rank_icon = utils.get_medal(limit)
+            msg += f"{rank_icon} <b>{artist}</b> • <b>{utils.format_number(plays)} plays</b>\n"
         
         if what == "Tracks":
             queries = await db.get_queries()
-            header = f"🎵 <b>Statistik Global</b>\n\n"
+            header = f"👨‍🎤 <b>Top Artist Global</b>\n\n"
             header += f"<blockquote>📊 <b>Total Queries:</b> {utils.format_number(queries)}\n"
             header += f"🎸 <b>Bot:</b> {app.name}\n"
-            header += f"🎶 <b>Total Tracks:</b> {utils.format_number(len(stats))}\n"
+            header += f"🎶 <b>Total Artists:</b> {utils.format_number(len(artist_counts))}\n"
             header += f"▶️ <b>Total Plays:</b> {utils.format_number(total_plays)}</blockquote>\n\n"
-            header += f"<b>🏆 Top {limit} Most Played:</b>\n\n<blockquote>"
+            header += f"<b>🏆 Top {limit} Most Played Artists:</b>\n\n<blockquote>"
         else:
-            header = f"📊 <b>Statistik Grup</b>\n\n"
-            header += f"<blockquote>🎶 <b>Total Tracks:</b> {utils.format_number(len(stats))}\n"
+            header = f"👨‍🎤 <b>Top Artist Grup</b>\n\n"
+            header += f"<blockquote>🎶 <b>Total Artists:</b> {utils.format_number(len(artist_counts))}\n"
             header += f"▶️ <b>Total Plays:</b> {utils.format_number(total_plays)}</blockquote>\n\n"
-            header += f"<b>🏆 Top {limit} Lagu:</b>\n\n<blockquote>"
+            header += f"<b>🏆 Top {limit} Artis Terpopuler:</b>\n\n<blockquote>"
         msg = header + msg + "</blockquote>"
         
     elif what in ["Users", "Chats", "UsersHere"]:
         # Display users/chats with enhanced formatting
-        from delta.helpers import utils
-        
-        # Calculate max for progress bar
         max_plays = max(stats.values()) if stats else 1
         
         # Identify excluded IDs (Bot and Assistants)
         excluded_ids = {app.id}
-        from delta import userbot
         for client in userbot.clients:
             if hasattr(client, 'id'):
                 excluded_ids.add(client.id)
@@ -188,17 +186,14 @@ async def get_stats_callback(_, query: types.CallbackQuery):
             try:
                 if what in ["Users", "UsersHere"]:
                     try:
-                        # Convert to int if string (MongoDB sometimes stores as string)
                         user_id_int = int(item_id)
                         user = await app.get_users(user_id_int)
                         extract = f"<a href='tg://user?id={user_id_int}'>{user.first_name}</a>"
                     except:
-                        # If can't fetch user, show ID as fallback instead of skipping
                         try:
                             user_id_int = int(item_id)
                             extract = f"<a href='tg://user?id={user_id_int}'>User {user_id_int}</a>"
                         except:
-                            # If ID conversion also fails, skip
                             continue
                 else:
                     try:
@@ -208,7 +203,6 @@ async def get_stats_callback(_, query: types.CallbackQuery):
                         else:
                             extract = f"<b>{chat.title}</b>"
                     except:
-                        # Skip deleted groups
                         continue
             except:
                 continue
@@ -223,7 +217,7 @@ async def get_stats_callback(_, query: types.CallbackQuery):
         if what == "Users":
             header = f"🌟 <b>Top {limit} User Teraktif (Global):</b>\n\n<blockquote>"
         elif what == "UsersHere":
-            header = f"� <b>Top {limit} Pengguna Teraktif di Grup Ini:</b>\n\n<blockquote>"
+            header = f"👤 <b>Top {limit} Pengguna Teraktif di Grup Ini:</b>\n\n<blockquote>"
         else:
             header = f"🌍 <b>Top {limit} Grup Teraktif (Global):</b>\n\n<blockquote>"
         msg = header + msg + "</blockquote>"
@@ -263,7 +257,6 @@ async def overall_stats_callback(_, query: types.CallbackQuery):
     mod = len(all_modules)
     assistant = len(userbot.clients)
     
-    from delta.helpers import utils
     text = f"""🤖 <b>Statistik & Info Bot:</b>
 
 <blockquote>📦 <b>Modul:</b> {mod}
@@ -272,7 +265,7 @@ async def overall_stats_callback(_, query: types.CallbackQuery):
 🚫 <b>Diblokir:</b> {blocked}
 ⚡ <b>Sudoers:</b> {sudoers}
 
-� <b>Queries:</b> {utils.format_number(total_queries)}
+🔢 <b>Queries:</b> {utils.format_number(total_queries)}
 🤖 <b>Assistant:</b> {assistant}
 🚪 <b>Auto Leave:</b> {"✅ Ya" if config.AUTO_LEAVE else "❌ Tidak"}
 
@@ -384,4 +377,3 @@ async def stats_close_callback(_, query: types.CallbackQuery):
         await query.message.delete()
     except:
         pass
-
